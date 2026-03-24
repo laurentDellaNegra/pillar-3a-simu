@@ -1,0 +1,27 @@
+---
+interface Props {
+  icon: string;
+  color: string;
+  gradient: string;
+  toggleKey: string;
+  labelId: string;
+  arrowId: string;
+  contentId: string;
+}
+
+const { icon, color, gradient, toggleKey, labelId, arrowId, contentId } = Astro.props;
+---
+
+<div class="feat" style={`background:${gradient}`}>
+  <div
+    style="display:flex;align-items:center;gap:10px;margin-bottom:4px;cursor:pointer"
+    data-toggle={toggleKey}
+  >
+    <span style="font-size:18px">{icon}</span>
+    <h3 style={`font-size:14px;font-weight:700;color:${color};margin:0`} id={labelId}></h3>
+    <span id={arrowId} style="color:#5a7080;font-size:12px;margin-left:auto"></span>
+  </div>
+  <div id={contentId} class="hid">
+    <slot />
+  </div>
+</div>

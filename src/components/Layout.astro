@@ -1,0 +1,23 @@
+---
+import "../styles/global.css";
+---
+
+<html lang="fr" style="background-color: #080c12;">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Simulateur 3a — Multi-ETF</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="wrap" style="position:relative">
+      <slot />
+    </div>
+    <script>
+      import "../scripts/main.js";
+    </script>
+  </body>
+</html>

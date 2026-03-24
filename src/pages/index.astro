@@ -1,0 +1,101 @@
+---
+import Layout from "../components/Layout.astro";
+import EtfSelection from "../components/EtfSelection.astro";
+import Parameters from "../components/Parameters.astro";
+import HistoricalChart from "../components/HistoricalChart.astro";
+import CollapsibleSection from "../components/CollapsibleSection.astro";
+import YearTable from "../components/YearTable.astro";
+import Disclaimer from "../components/Disclaimer.astro";
+---
+
+<Layout>
+  <div class="lang-toggle" id="langToggle"></div>
+  <div id="header"></div>
+
+  <EtfSelection />
+  <Parameters />
+  <HistoricalChart />
+
+  <CollapsibleSection
+    icon="🔮"
+    color="#8b5cf6"
+    gradient="linear-gradient(135deg,#10101a,#0e1525)"
+    toggleKey="showProj"
+    labelId="lbProj"
+    arrowId="projArrow"
+    contentId="projContent"
+  >
+    <div class="g2" style="margin:16px 0">
+      <div id="sp1"></div>
+      <div id="sp2"></div>
+    </div>
+    <div id="projChart"></div>
+    <div class="g6" id="projStats" style="margin-top:12px"></div>
+    <div id="projNote" style="font-size:9px;color:#3a5060;font-family:var(--m);margin-top:6px">
+    </div>
+  </CollapsibleSection>
+
+  <CollapsibleSection
+    icon="📅"
+    color="#f59e0b"
+    gradient="linear-gradient(135deg,#14120a,#181510)"
+    toggleKey="showRetro"
+    labelId="lbRetro"
+    arrowId="retroArrow"
+    contentId="retroContent"
+  >
+    <p id="retroDesc" style="font-size:11px;color:#8a7a50;margin:8px 0 16px;line-height:1.6"></p>
+    <div class="g2">
+      <div id="sr1"></div>
+      <div id="sr2"></div>
+    </div>
+    <div id="retroResult" style="margin-top:16px"></div>
+  </CollapsibleSection>
+
+  <CollapsibleSection
+    icon="🏛️"
+    color="#34d399"
+    gradient="linear-gradient(135deg,#0a1410,#0e1a16)"
+    toggleKey="show2P"
+    labelId="lb2P"
+    arrowId="p2Arrow"
+    contentId="p2Content"
+  >
+    <p id="p2Desc" style="font-size:11px;color:#5a8a6a;margin:8px 0 16px;line-height:1.6"></p>
+    <div class="g2">
+      <div id="s2p1"></div>
+      <div id="s2p2"></div>
+    </div>
+    <div id="p2Result" style="margin-top:16px"></div>
+  </CollapsibleSection>
+
+  <CollapsibleSection
+    icon="🎲"
+    color="#a78bfa"
+    gradient="linear-gradient(135deg,#14101a,#18122a)"
+    toggleKey="showMC"
+    labelId="lbMC"
+    arrowId="mcArrow"
+    contentId="mcContent"
+  >
+    <p id="mcDesc" style="font-size:11px;color:#8a7aaa;margin:8px 0 16px;line-height:1.6"></p>
+    <div id="mcChart"></div>
+    <div class="g6" id="mcStats" style="margin-top:12px"></div>
+  </CollapsibleSection>
+
+  <CollapsibleSection
+    icon="🔒"
+    color="#fb923c"
+    gradient="linear-gradient(135deg,#1a1410,#1e1812)"
+    toggleKey="showOpp"
+    labelId="lbOpp"
+    arrowId="oppArrow"
+    contentId="oppContent"
+  >
+    <div id="sAge" style="margin:12px 0"></div>
+    <div id="oppResult"></div>
+  </CollapsibleSection>
+
+  <YearTable />
+  <Disclaimer />
+</Layout>

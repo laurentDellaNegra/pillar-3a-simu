@@ -3,7 +3,7 @@
 > **Compare any major ETF on Interactive Brokers to its equivalent pension fund on Finpension 3a.**
 > Apple-to-apple. Multi-language. Zero dependencies.
 
-![Status](https://img.shields.io/badge/status-production-brightgreen) ![Languages](https://img.shields.io/badge/languages-FR%20|%20DE%20|%20IT%20|%20EN-blue) ![Size](https://img.shields.io/badge/size-~50KB-orange) ![Dependencies](https://img.shields.io/badge/dependencies-0-green)
+![Status](https://img.shields.io/badge/status-production-brightgreen) ![Languages](https://img.shields.io/badge/languages-FR%20|%20DE%20|%20IT%20|%20EN-blue) ![Built with](https://img.shields.io/badge/built_with-Astro-ff5d01) ![Formatted with](https://img.shields.io/badge/formatted_with-Prettier-f7b93e)
 
 ---
 
@@ -23,7 +23,7 @@
 
 ## What Is This?
 
-A single-file HTML/CSS/JS interactive simulator (no React, no build step, no server) that answers the question every Swiss investor asks:
+An interactive simulator built with **Astro** that answers the question every Swiss investor asks:
 
 **"Should I invest in a 3rd pillar (Finpension/VIAC) or directly on IBKR?"**
 
@@ -239,23 +239,53 @@ Dividends are taxed as income at the marginal rate. Applies to IBKR holdings (bo
 
 ## Technical Architecture
 
-### Single File, Zero Dependencies
+### Astro + Vanilla JS
+
+Built with [Astro](https://astro.build/) as a static site generator with [Prettier](https://prettier.io/) for code formatting. All interactivity is client-side vanilla JS — no UI framework (React, Vue, etc.) needed.
 
 ```
-index.html          — 487 lines, ~50KB
-├── <style>         — CSS (custom dark theme, toggle switch, responsive grid)
-├── <body>          — HTML structure (cards, sections, placeholders)
-└── <script>        — Vanilla JS (data, calc engine, render, i18n, SVG charts)
+src/
+  pages/
+    index.astro                — Page: composes all components
+  components/
+    Layout.astro               — Base layout: <html>, <head>, fonts, CSS, script entry
+    EtfSelection.astro         — ETF dropdowns + compare toggle
+    Parameters.astro           — Sliders, pills, custom rate, tax info
+    HistoricalChart.astro      — Stats grid, SVG chart, withdrawal optimization, strategy cards
+    CollapsibleSection.astro   — Reusable expandable panel (typed props + slot)
+    YearTable.astro            — Toggle button + table container
+    Disclaimer.astro           — Disclaimer block
+  styles/
+    global.css                 — Dark theme, responsive grid, custom components
+  data/
+    translations.js            — i18n: FR, DE, IT, EN (~110 keys per language)
+    communes.js                — 9 Swiss communes: marginal rates, withdrawal tax, wealth tax
+    etfs.js                    — 9 ETFs: returns 2016–2025, TER, dividends, Finpension allocations
+  scripts/
+    state.js                   — Global state (Z) + translation helper (t)
+    format.js                  — Number/percentage formatting (fm, pp)
+    tax.js                     — Withdrawal tax (wT) + marginal rate calculation (getMg)
+    chart.js                   — SVG chart generator with tooltips (svgC)
+    ui.js                      — Slider/pill UI builders (mkS, mkP)
+    simulation.js              — Year-by-year simulation engine (runSim)
+    render.js                  — DOM rendering (~160 lines)
+    main.js                    — Entry point: wires modules, builds UI (buildAll)
 ```
 
 **External resources**: Google Fonts (DM Sans + DM Mono) — CSS only, non-blocking.
 
-### No Framework
+### Build & Dev
 
-- No React, Vue, Angular, or Svelte
-- No Chart.js, D3, or Recharts
-- No build step, no npm, no bundler
-- Opens directly in any browser
+```bash
+npm install          # Install dependencies
+npm run dev          # Local dev server with hot reload
+npm run build        # Production build → dist/
+npm run preview      # Preview production build
+npm run format       # Format all files with Prettier
+npm run format:check # Check formatting (CI)
+```
+
+Deployed automatically to GitHub Pages via GitHub Actions on push to `main`.
 
 ### SVG Charts
 
@@ -471,4 +501,4 @@ Data sources: MSCI Inc. (factsheets), Finpension AG (fund list), Swiss Federal T
 
 ---
 
-*Built with Claude (Anthropic) in a single conversation. ~500 lines of vanilla HTML/CSS/JS, zero external dependencies, runs offline.*
+*Built with Claude (Anthropic). Astro + vanilla JS, formatted with Prettier, deployed on GitHub Pages.*
