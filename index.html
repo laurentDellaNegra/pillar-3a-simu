@@ -50,6 +50,12 @@ select option{background:#0e1520;color:#e4e8ec}
 .feat{border:1px solid #1a2a40;border-radius:14px;padding:20px;margin-bottom:16px}
 input[type=number]{background:#0a1018;color:#60a5fa;border:1px solid #2a3540;border-radius:6px;padding:6px 10px;font-size:13px;font-family:var(--m);width:90px;text-align:right}
 input[type=number]:focus{outline:none;border-color:#3b82f6}
+.tog{position:relative;width:40px;height:22px;display:inline-block;vertical-align:middle;cursor:pointer}
+.tog input{opacity:0;width:0;height:0}
+.tog .tr{position:absolute;cursor:pointer;inset:0;background:#1a2530;border-radius:22px;transition:.3s}
+.tog .tr:before{content:"";position:absolute;height:16px;width:16px;left:3px;bottom:3px;background:#5a7080;border-radius:50%;transition:.3s}
+.tog input:checked+.tr{background:#f59e0b30;box-shadow:0 0 8px #f59e0b20}
+.tog input:checked+.tr:before{transform:translateX(18px);background:#f59e0b}
 .sel2{width:48%}
 </style>
 </head>
@@ -60,9 +66,9 @@ input[type=number]:focus{outline:none;border-color:#3b82f6}
   <!-- ETF Selection (1 or 2) -->
   <div class="card" style="border-color:#1e3a50">
     <div id="etfLabel" style="font-size:11px;font-family:var(--m);color:#60a5fa;margin-bottom:12px;letter-spacing:1px"></div>
-    <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:start">
-      <div style="flex:1;min-width:250px"><div style="font-size:9px;color:#3b82f6;font-family:var(--m);margin-bottom:4px">ETF 1</div><select id="idxSel"></select></div>
-      <div style="flex:1;min-width:250px"><div style="display:flex;justify-content:space-between;align-items:center"><div style="font-size:9px;color:#f59e0b;font-family:var(--m);margin-bottom:4px" id="lbETF2">ETF 2</div><label style="font-size:9px;color:#5a7080;font-family:var(--m);cursor:pointer"><input type="checkbox" id="cmpToggle" style="margin-right:4px;accent-color:#f59e0b" /><span id="lbCmpOn"></span></label></div><select id="idxSel2" disabled style="opacity:.4"></select></div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:end">
+      <div style="flex:1;min-width:250px"><div style="font-size:9px;color:#3b82f6;font-family:var(--m);margin-bottom:6px;height:22px;display:flex;align-items:center">ETF 1</div><select id="idxSel"></select></div>
+      <div style="flex:1;min-width:250px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;height:22px"><div style="font-size:9px;color:#f59e0b;font-family:var(--m)" id="lbETF2">ETF 2</div><div style="display:flex;align-items:center;gap:6px"><label class="tog"><input type="checkbox" id="cmpToggle" /><span class="tr"></span></label><span id="lbCmpOn" style="font-size:9px;color:#5a7080;font-family:var(--m)"></span></div></div><select id="idxSel2" disabled style="opacity:.4"></select></div>
     </div>
     <div id="idxInfo" class="idx-info"></div>
   </div>
@@ -78,11 +84,11 @@ input[type=number]:focus{outline:none;border-color:#3b82f6}
   <!-- Stats -->
   <div class="g6" id="sts"></div>
   <!-- Chart -->
-  <div class="card"><h3 id="chartTitle" style="font-size:13px;font-weight:600;margin-bottom:12px;color:#7a8fa5"></h3><div id="hc"></div></div>
+  <div class="card"><h3 id="chartTitle" style="font-size:13px;font-weight:600;margin-bottom:12px;color:#7a8fa5"></h3><div id="hc"></div><div id="hcNote"></div></div>
   <!-- Withdrawal optimization -->
   <div id="op" class="card" style="background:linear-gradient(135deg,#12190e,#101a14);border-color:#1e3a22"></div>
   <!-- Strategy cards -->
-  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px" id="scs"></div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;margin-bottom:16px" id="scs"></div>
   <!-- ═══ PROJECTION ═══ -->
   <div class="feat" style="background:linear-gradient(135deg,#10101a,#0e1525)">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;cursor:pointer" onclick="Z.showProj=!Z.showProj;render()">
@@ -117,6 +123,27 @@ input[type=number]:focus{outline:none;border-color:#3b82f6}
       <div id="p2Result" style="margin-top:16px"></div>
     </div>
   </div>
+  <!-- ═══ MONTE CARLO ═══ -->
+  <div class="feat" style="background:linear-gradient(135deg,#14101a,#18122a)">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;cursor:pointer" onclick="Z.showMC=!Z.showMC;render()">
+      <span style="font-size:18px">🎲</span><h3 style="font-size:14px;font-weight:700;color:#a78bfa;margin:0" id="lbMC"></h3>
+      <span id="mcArrow" style="color:#5a7080;font-size:12px;margin-left:auto"></span></div>
+    <div id="mcContent" class="hid">
+      <p id="mcDesc" style="font-size:11px;color:#8a7aaa;margin:8px 0 16px;line-height:1.6"></p>
+      <div id="mcChart"></div>
+      <div class="g6" id="mcStats" style="margin-top:12px"></div>
+    </div>
+  </div>
+  <!-- ═══ OPPORTUNITY COST ═══ -->
+  <div class="feat" style="background:linear-gradient(135deg,#1a1410,#1e1812)">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;cursor:pointer" onclick="Z.showOpp=!Z.showOpp;render()">
+      <span style="font-size:18px">🔒</span><h3 style="font-size:14px;font-weight:700;color:#fb923c;margin:0" id="lbOpp"></h3>
+      <span id="oppArrow" style="color:#5a7080;font-size:12px;margin-left:auto"></span></div>
+    <div id="oppContent" class="hid">
+      <div id="sAge" style="margin:12px 0"></div>
+      <div id="oppResult"></div>
+    </div>
+  </div>
   <!-- Year table -->
   <button class="tb" id="tt"></button>
   <div id="tw" class="hid"></div>
@@ -128,6 +155,8 @@ var T={fr:{sub:"FINPENSION 3A · SIMULATEUR MULTI-ETF",h1a:"Même indice",h1b:",
 proj:"Projection future",pH:"Horizon",pR:"Rendement hypo.",pN:"⚠ Hypothétique. Pas de garantie de rendement futur.",
 retro:"Versements rétroactifs 3a (2026+)",retroD:"Depuis 2026, il est possible de racheter les années non cotisées au 3a (max 5 ans, CHF 7'258/an). Ce capital supplémentaire bénéficie des mêmes avantages fiscaux.",rYrs:"Années à rattraper",rAmt:"Montant total",rRes:"Résultat du rachat rétroactif",rDed:"Déduction supplémentaire",rNet:"Capital additionnel après impôt retrait",
 p2:"Rachat 2e pilier",p2D:"Le rachat volontaire dans le 2e pilier est 100% déductible du revenu imposable. Attention : pas de retrait possible dans les 3 ans suivant un rachat (sauf départ CH).",p2Am:"Montant rachat",p2Yr:"Horizon placement",p2Ded:"Déduction fiscale",p2LPP:"Rendement LPP (~1%/an)",p2ETF:"Même montant en ETF",p2Lock:"⚠ Bloqué jusqu'à la retraite",
+mc:"Monte Carlo (1'000 simulations)",mcD:"Simule 1'000 scénarios avec la volatilité historique de l'indice. Montre les percentiles P10 (pessimiste), P50 (médian) et P90 (optimiste).",
+opp:"Coût d'opportunité du blocage 3a",oppAge:"Votre âge",oppYrs:"Années de blocage",oppRes:"Si vous investissiez le même montant en IBKR avec liquidité totale, vous pourriez avoir accès à votre argent immédiatement. Le 3a est bloqué, mais la déduction fiscale compense largement ce coût.",oppFree:"Capital libre (IBKR)",oppLocked:"Capital bloqué (3a net)",oppAdvice:"L'avantage fiscal du 3a compense le blocage dans quasi tous les scénarios.",fxNote:"Frais FX IBKR: ~2 USD/conversion inclus",
 grp:{"S&P 500":"S&P 500","World / All-World":"World / All-World","Ém":"Émergents","Jp":"Japon","CH":"Suisse"},
 dis:"DISCLAIMER · Sources: MSCI factsheets CHF jan 2026. Finpension: fonds pension (WHT reclaim) - 0.39%. IBKR: TER + WHT drag + stamp 0.15% + impôts CH. Taux par commune (Lausanne 78.5%, Nyon 61%). Retrait VD = 1/5 ordinaire. VD: 2 retraits max, NE: 1. Rétroactifs 3a dès 2026 (max 5 ans). Rachat 2P déductible mais bloqué 3 ans. Pas un conseil financier.",
 salL:"Salaire",mgL:"Marginal",foL:"Fortune",coL:"Cotisation",svY:"Éco/an",cmI:"Commune"},
@@ -135,6 +164,8 @@ de:{sub:"FINPENSION 3A · MULTI-ETF SIMULATOR",h1a:"Gleicher Index",h1b:", 3a vs
 proj:"Zukunftsprojektion",pH:"Horizont",pR:"Hyp. Rendite",pN:"⚠ Hypothetisch.",
 retro:"Rückwirkende 3a-Einzahlungen (2026+)",retroD:"Ab 2026 können fehlende 3a-Jahre nachgeholt werden (max 5 Jahre, CHF 7'258/J).",rYrs:"Jahre nachzuholen",rAmt:"Gesamtbetrag",rRes:"Ergebnis",rDed:"Zusätzlicher Abzug",rNet:"Zusätzliches Kapital netto",
 p2:"2. Säule Einkauf",p2D:"Freiwilliger Einkauf in die 2. Säule ist voll abzugsfähig. Kein Bezug 3 Jahre nach Einkauf.",p2Am:"Einkaufsbetrag",p2Yr:"Anlagehorizont",p2Ded:"Steuerabzug",p2LPP:"BVG-Rendite (~1%/J)",p2ETF:"Gleicher Betrag in ETF",p2Lock:"⚠ Bis Pension gesperrt",
+mc:"Monte Carlo (1'000 Simulationen)",mcD:"Simuliert 1'000 Szenarien mit historischer Volatilität. Zeigt P10 (pessimistisch), P50 (Median) und P90 (optimistisch).",
+opp:"Opportunitätskosten der 3a-Sperrung",oppAge:"Ihr Alter",oppYrs:"Jahre Sperrung",oppRes:"Bei IBKR hätten Sie jederzeit Zugang. 3a ist gesperrt, aber der Steuerabzug kompensiert dies in fast allen Szenarien.",oppFree:"Freies Kapital (IBKR)",oppLocked:"Gesperrtes Kapital (3a netto)",oppAdvice:"Der Steuervorteil des 3a kompensiert die Sperrung in fast allen Szenarien.",fxNote:"IBKR FX-Gebühr: ~2 USD/Konversion inkl.",
 grp:{"S&P 500":"S&P 500","World / All-World":"World / All-World","Ém":"Schwellenländer","Jp":"Japan","CH":"Schweiz"},
 dis:"DISCLAIMER · MSCI Factsheets CHF Jan 2026. Finpension: Pensionsfonds - 0.39%. IBKR: TER+QSt+Stempel+CH-Steuern. Lausanne 78.5%, Nyon 61%. VD: 2 Ausz. max, NE: 1. Rückwirkend 3a ab 2026. 2P-Einkauf 3J gesperrt. Keine Finanzberatung.",
 salL:"Gehalt",mgL:"Grenzst.",foL:"Vermögen",coL:"Beitrag",svY:"Ersp./J",cmI:"Gemeinde"},
@@ -142,6 +173,8 @@ it:{sub:"FINPENSION 3A · SIMULATORE MULTI-ETF",h1a:"Stesso indice",h1b:", 3a vs
 proj:"Proiezione futura",pH:"Orizzonte",pR:"Rendimento ipot.",pN:"⚠ Ipotetico.",
 retro:"Versamenti retroattivi 3a (2026+)",retroD:"Dal 2026, possibile recuperare anni non versati (max 5 anni, CHF 7'258/a).",rYrs:"Anni da recuperare",rAmt:"Importo totale",rRes:"Risultato",rDed:"Deduzione aggiuntiva",rNet:"Capitale netto aggiuntivo",
 p2:"Riscatto 2° pilastro",p2D:"Il riscatto volontario è deducibile al 100%. Nessun prelievo per 3 anni dopo il riscatto.",p2Am:"Importo riscatto",p2Yr:"Orizzonte invest.",p2Ded:"Deduzione fiscale",p2LPP:"Rendimento LPP (~1%/a)",p2ETF:"Stesso importo in ETF",p2Lock:"⚠ Bloccato fino al pensionamento",
+mc:"Monte Carlo (1'000 simulazioni)",mcD:"Simula 1'000 scenari con la volatilità storica. Mostra P10 (pessimista), P50 (mediana) e P90 (ottimista).",
+opp:"Costo opportunità del blocco 3a",oppAge:"La vostra età",oppYrs:"Anni di blocco",oppRes:"Con IBKR avreste accesso immediato. Il 3a è bloccato, ma la deduzione fiscale compensa ampiamente.",oppFree:"Capitale libero (IBKR)",oppLocked:"Capitale bloccato (3a netto)",oppAdvice:"Il vantaggio fiscale del 3a compensa il blocco nella quasi totalità degli scenari.",fxNote:"Comm. FX IBKR: ~2 USD/conv. inclusi",
 grp:{"S&P 500":"S&P 500","World / All-World":"World / All-World","Ém":"Emergenti","Jp":"Giappone","CH":"Svizzera"},
 dis:"DISCLAIMER · MSCI factsheets CHF gen 2026. Finpension: fondi pensione - 0.39%. IBKR: TER+ritenuta+bollo+imposte CH. Losanna 78.5%, Nyon 61%. VD: 2 prelievi max. Retroattivi 3a dal 2026. Riscatto 2P 3a bloccato. Non consulenza finanziaria.",
 salL:"Stipendio",mgL:"Aliquota marg.",foL:"Patrimonio",coL:"Contributo",svY:"Risp./a",cmI:"Comune"},
@@ -149,6 +182,8 @@ en:{sub:"FINPENSION 3A · MULTI-ETF SIMULATOR",h1a:"Same index",h1b:", 3a vs IBK
 proj:"Future projection",pH:"Horizon",pR:"Hyp. return",pN:"⚠ Hypothetical. No guarantee.",
 retro:"Retroactive 3a contributions (2026+)",retroD:"From 2026, you can catch up missed 3a years (max 5 years, CHF 7,258/yr). Same tax advantages apply.",rYrs:"Years to catch up",rAmt:"Total amount",rRes:"Catch-up result",rDed:"Additional deduction",rNet:"Additional net capital",
 p2:"2nd pillar voluntary buy-in",p2D:"Voluntary 2nd pillar buy-in is 100% tax-deductible. No withdrawal allowed for 3 years after buy-in.",p2Am:"Buy-in amount",p2Yr:"Investment horizon",p2Ded:"Tax deduction",p2LPP:"LPP return (~1%/yr)",p2ETF:"Same amount in ETF",p2Lock:"⚠ Locked until retirement",
+mc:"Monte Carlo (1,000 simulations)",mcD:"Simulates 1,000 scenarios using historical volatility. Shows P10 (pessimistic), P50 (median), and P90 (optimistic).",
+opp:"3a lock-up opportunity cost",oppAge:"Your age",oppYrs:"Years locked",oppRes:"With IBKR you'd have immediate access. 3a is locked, but the tax deduction more than compensates in nearly all scenarios.",oppFree:"Free capital (IBKR)",oppLocked:"Locked capital (3a net)",oppAdvice:"The 3a tax advantage compensates for the lock-up in nearly all scenarios.",fxNote:"IBKR FX fee: ~2 USD/conversion included",
 grp:{"S&P 500":"S&P 500","World / All-World":"World / All-World","Ém":"Emerging","Jp":"Japan","CH":"Switzerland"},
 dis:"DISCLAIMER · MSCI factsheets CHF Jan 2026. Finpension: pension funds - 0.39%. IBKR: TER+WHT+stamp+CH taxes. Lausanne 78.5%, Nyon 61%. VD: 2 max withdrawals. Retroactive 3a from 2026. 2P buy-in locked 3y. Not financial advice.",
 salL:"Salary",mgL:"Marginal",foL:"Wealth",coL:"Contribution",svY:"Saving/yr",cmI:"Municipality"}};
@@ -182,15 +217,41 @@ function pp(n){return(n>=0?"+":"")+n.toFixed(1)+"%"}
 function svgC(el,lb,ds,h){h=h||280;var W=620,H=h,P=50,PR=10,PT=20,PB=30,cW=W-P-PR,cH=H-PT-PB;
   var mn=0,mx=0;ds.forEach(function(d){d.data.forEach(function(v){if(v>mx)mx=v})});if(mx===0)mx=1;
   function gx(i){return P+i/(lb.length-1)*cW}function gy(v){return PT+(1-v/mx)*cH}
-  var s='<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto">';
+  var uid='c'+Math.random().toString(36).substr(2,6);
+  var s='<div style="position:relative"><svg id="'+uid+'" viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto">';
   for(var i=0;i<=5;i++){var v=mx*i/5,yy=gy(v);s+='<line x1="'+P+'" y1="'+yy+'" x2="'+(W-PR)+'" y2="'+yy+'" stroke="#1a2530"/>';s+='<text x="'+(P-6)+'" y="'+(yy+3)+'" fill="#4a6070" font-size="9" text-anchor="end">'+(v/1000).toFixed(0)+'k</text>'}
   lb.forEach(function(l,i){s+='<text x="'+gx(i)+'" y="'+(H-8)+'" fill="#4a6070" font-size="9" text-anchor="middle">'+l+'</text>'});
   ds.forEach(function(d){var p="";d.data.forEach(function(v,i){p+=(i===0?"M":"L")+gx(i).toFixed(1)+","+gy(v).toFixed(1)});
     s+='<path d="'+p+'" fill="none" stroke="'+d.color+'" stroke-width="'+(d.width||1.5)+'" stroke-linecap="round" stroke-linejoin="round"/>';
     if(d.dots!==false)d.data.forEach(function(v,i){s+='<circle cx="'+gx(i)+'" cy="'+gy(v)+'" r="'+(d.r||2)+'" fill="'+d.color+'"/>'})});
-  s+='</svg><div class="leg">';ds.forEach(function(d){s+='<span><i style="background:'+d.color+'"></i>'+d.label+'</span>'});s+='</div>';el.innerHTML=s}
+  // Invisible hover zones per x-point
+  for(var i=0;i<lb.length;i++){var xp=gx(i),bw=cW/(lb.length-1)*.8;
+    s+='<rect x="'+(xp-bw/2)+'" y="'+PT+'" width="'+bw+'" height="'+cH+'" fill="transparent" data-i="'+i+'" class="hz"/>';}
+  s+='<line id="'+uid+'hl" x1="0" y1="'+PT+'" x2="0" y2="'+(PT+cH)+'" stroke="#3b82f640" stroke-width="1" style="display:none"/>';
+  s+='</svg>';
+  s+='<div id="'+uid+'tt" style="display:none;position:absolute;background:#111a26ee;border:1px solid #2a3d52;border-radius:8px;padding:8px 12px;pointer-events:none;font-size:10px;font-family:var(--m);color:#e4e8ec;z-index:10;line-height:1.7;white-space:nowrap"></div></div>';
+  s+='<div class="leg">';ds.forEach(function(d){s+='<span><i style="background:'+d.color+'"></i>'+d.label+'</span>'});s+='</div>';
+  el.innerHTML=s;
+  // Attach tooltip events
+  var svgEl=document.getElementById(uid),ttEl=document.getElementById(uid+'tt'),hlEl=document.getElementById(uid+'hl');
+  if(!svgEl)return;
+  var zones=svgEl.querySelectorAll('.hz');
+  zones.forEach(function(z){
+    z.addEventListener('mouseenter',function(){
+      var idx=+this.getAttribute('data-i'),xp=gx(idx);
+      hlEl.setAttribute('x1',xp);hlEl.setAttribute('x2',xp);hlEl.style.display='';
+      var html='<b style="color:#7a8fa5">'+lb[idx]+'</b><br>';
+      ds.forEach(function(d){if(d.data[idx]!==undefined)html+='<span style="color:'+d.color+'">● '+d.label+': CHF '+fm(d.data[idx])+'</span><br>'});
+      ttEl.innerHTML=html;ttEl.style.display='block';
+      // Position tooltip
+      var rect=svgEl.getBoundingClientRect(),pct2=xp/W;
+      ttEl.style.left=Math.min(pct2*rect.width,rect.width-180)+'px';ttEl.style.top='10px';
+    });
+    z.addEventListener('mouseleave',function(){hlEl.style.display='none';ttEl.style.display='none'});
+  });
+}
 
-var Z={monthly:605,salary:115000,status:"single",canton:"Lausanne",startBal:0,idx:"voo",idx2:"cspx",showTable:false,dedMode:"reinvest",lang:"fr",customRate:0,cmpMode:false,showProj:false,projYr:20,projRet:8,showRetro:false,retroYrs:3,show2P:false,p2Amt:20000,p2Yr:20};
+var Z={monthly:605,salary:115000,status:"single",canton:"Lausanne",startBal:0,idx:"voo",idx2:"cspx",showTable:false,dedMode:"reinvest",lang:"fr",customRate:0,cmpMode:false,showProj:false,projYr:20,projRet:8,showRetro:false,retroYrs:3,show2P:false,p2Amt:20000,p2Yr:20,age:30,showMC:false,showOpp:false};
 
 function mkS(id,lb,ky,mn,mx,st,un,ff,ac){var el=document.getElementById(id);if(!el)return;
   el.innerHTML='<div class="sw"><div class="sh"><span>'+lb+'</span><span class="sv" style="color:'+ac+'" id="'+ky+'V"></span></div><div class="stk"><div class="sbg"><div class="sfl" id="'+ky+'F" style="background:'+ac+'"></div><div class="sgl" id="'+ky+'G" style="background:'+ac+'"></div></div><input type="range" min="'+mn+'" max="'+mx+'" step="'+st+'" value="'+Z[ky]+'" style="--tc:'+ac+'" id="'+ky+'I"></div><div class="smm"><span>'+(ff?ff(mn):mn)+(un||"")+'</span><span>'+(ff?ff(mx):mx)+(un||"")+'</span></div></div>';
@@ -218,7 +279,8 @@ function runSim(idxKey){
     var sv=c*mg;
     if(dm==="reinvest"){var ig=ibR/100;fpSide=(fpSide+sv*.9985)*(1+ig);fpSide-=fpSide*dy*mg/(1+ig/2)*.5;fpSide-=fpSide*wt}
     else if(dm==="cash"){fpSide+=sv;fpSide-=fpSide*wt}
-    var ig2=ibR/100;ib=(ib+c*.9985)*(1+ig2);var aB=ib/(1+ig2/2);var dd=aB*dy*mg,ww=ib*wt;ibDt+=dd;ibWt+=ww;ib-=(dd+ww);
+    var fxF=ix.dom==="🇨🇭"?1:0.9997; // IBKR FX fee ~2 USD per conversion (~0.03%)
+    var ig2=ibR/100;ib=(ib+c*.9985*fxF)*(1+ig2);var aB=ib/(1+ig2/2);var dd=aB*dy*mg,ww=ib*wt;ibDt+=dd;ibWt+=ww;ib-=(dd+ww);
     cL.push(yr);cFP.push(Math.round(fp+fpSide));cIB.push(Math.round(ib))}
   var tc=Z.startBal;for(yi=0;yi<YR.length;yi++)tc+=Math.min(Z.monthly*12,MA[YR[yi]]);
   var sc=[];for(var n=1;n<=ms;n++){var pa=fp/n,tp=wT(pa,Z.canton,Z.status)*n;sc.push({ac:n,pa:fp/n,tt:tp,rt:fp>0?tp/fp:0,nt:fp-tp})}
@@ -254,6 +316,15 @@ function render(){
     chartDS.push({label:ix2.name+" (IBKR)",data:R2.cIB,color:"#f59e0b",width:1.5,r:2,dots:false});
     chartDS.push({label:ix2.name+" "+t("pen")+" (3a)",data:R2.cFP,color:"#8b5cf6",width:2,r:2,dots:false})}
   svgC(document.getElementById("hc"),R.cL,chartDS);
+  // Net values note below chart (separate div to preserve SVG tooltips)
+  var wdNote='<div style="padding:8px 12px;background:#080c12;border-radius:6px;font-size:9px;font-family:var(--m);color:#4a6070;line-height:1.6;margin-top:8px">';
+  wdNote+='<span style="color:#3b82f6">● 3a '+t("net")+' ('+ba+t("ac")+'): <b>CHF '+fm(R.fpNO)+'</b></span>';
+  wdNote+=' · <span style="color:#ef6461">● IBKR '+t("net")+': <b>CHF '+fm(R.ibN)+'</b></span>';
+  var d2=R.fpNO-R.ibN;
+  wdNote+=' · <span style="color:'+(d2>=0?"#34d399":"#e87070")+'">Δ '+(d2>=0?"+":"")+'CHF '+fm(d2)+'</span>';
+  if(R.bs.tt>0)wdNote+=' <span style="color:#5a4040">('+t("wdT")+': -CHF '+fm(R.bs.tt)+')</span>';
+  wdNote+='</div>';
+  document.getElementById("hcNote").innerHTML=wdNote;
   // Withdrawal optimization (compact)
   var wn=R.ms<5?' <span style="color:#f59e0b">⚠️ '+ct.n+t("limW")+'<b>'+R.ms+'</b> '+(R.ms>1?t("wds"):t("wd"))+'.</span>':"";
   var tr="";R.sc.forEach(function(w2){var sv2=R.s1-w2.tt,io=w2.ac===ba;
@@ -269,7 +340,7 @@ function render(){
   if(ix.ibAdj>-ix.ter)ibCS+=" ("+t("whR")+": +"+(-ix.ibAdj+ix.ter).toFixed(2)+"%)";
   var strats=[
     {nm:ix.name+" "+t("pen")+" (3a)",tg:"3a×"+ba,cl:"#3b82f6",nt:R.fpNO,rw:fpRw,nf:[t("fee"),t("whr"),t("noTx"),dmN,t("alT")].concat(fpAL)},
-    {nm:ix.name+t("onIB"),tg:"direct",cl:"#ef6461",nt:R.ibN,rw:[[t("gV"),R.ib,""],[t("stD"),-R.ib*.0015,"n"],[t("dT"),-R.ibDt,"n"],[t("wT"),-R.ibWt,"n"]],nf:[ibCS,t("dAt")+Math.round(R.mg*100)+"%",t("fo")+(R.wt*100).toFixed(2)+"%/"+t("an"),t("cg")]}];
+    {nm:ix.name+t("onIB"),tg:"direct",cl:"#ef6461",nt:R.ibN,rw:[[t("gV"),R.ib,""],[t("stD"),-R.ib*.0015,"n"],[t("dT"),-R.ibDt,"n"],[t("wT"),-R.ibWt,"n"]],nf:[ibCS,t("dAt")+Math.round(R.mg*100)+"%",t("fo")+(R.wt*100).toFixed(2)+"%/"+t("an"),t("cg"),t("fxNote")]}];
   document.getElementById("scs").innerHTML=strats.map(function(s){var i3=s.tg.indexOf("3a")===0;
     return'<div class="sc" style="border:1px solid '+s.cl+'22"><div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><div style="width:8px;height:8px;border-radius:2px;background:'+s.cl+'"></div><span style="font-size:13px;font-weight:600">'+s.nm+'</span><span style="font-size:9px;font-family:var(--m);margin-left:auto;padding:2px 6px;border-radius:4px;background:'+(i3?"#0a1a10":"#1a1010")+";color:"+(i3?"#34d399":"#e87070")+'">'+s.tg.toUpperCase()+'</span></div><div style="font-size:10px;font-family:var(--m);color:#6b8299;line-height:2">'+s.rw.map(function(r){return"<div>"+r[0]+': <span style="color:'+(r[2]==="n"?"#e87070":r[2]==="p"?"#34d399":"#c9d6e3")+'">'+(r[1]<0?"-":"")+(r[2]==="p"?"+":"")+"CHF "+fm(Math.abs(r[1]))+"</span></div>"}).join("")+'<div style="border-top:1px solid #1a2530;padding-top:6px;margin-top:6px"><span style="font-size:16px;font-weight:700;color:'+s.cl+'">CHF '+fm(s.nt)+'</span> <span style="font-size:10px;color:#5a7080">'+pp((s.nt/R.tc-1)*100)+'</span></div></div><div style="margin-top:10px;padding:6px 8px;background:#080c12;border-radius:6px;font-size:9px;color:#3a5060;line-height:1.6">'+s.nf.map(function(n){return"<div>"+n+"</div>"}).join("")+"</div></div>"}).join("");
 
@@ -318,6 +389,56 @@ function render(){
     var p2WdLPP=wT(p2LPP,Z.canton,Z.status);
     document.getElementById("p2Result").innerHTML='<div class="og"><div class="st"><div class="sl">'+t("p2Ded")+'</div><div class="sv2" style="color:#34d399">CHF '+fm(p2Ded)+'</div><div class="ss">'+(R.mg*100).toFixed(0)+'% × '+fm(p2A)+'</div></div><div class="st"><div class="sl">'+t("p2LPP")+' ('+p2Y+t("an")+')</div><div class="sv2" style="color:#34d399">CHF '+fm(p2LPP-p2WdLPP)+'</div><div class="ss">'+t("p2Lock")+'</div></div><div class="st"><div class="sl">'+t("p2ETF")+' ('+p2Y+t("an")+')</div><div class="sv2" style="color:#ef6461">CHF '+fm(p2ETF*(1-R.wt*p2Y*.5))+'</div><div class="ss">'+(Z.projRet||8)+'%/'+t("an")+' hyp.</div></div></div>'}
 
+  // ═══ MONTE CARLO ═══
+  document.getElementById("lbMC").textContent=t("mc");
+  document.getElementById("mcArrow").textContent=Z.showMC?"▼":"▶";
+  document.getElementById("mcContent").classList.toggle("hid",!Z.showMC);
+  document.getElementById("mcDesc").textContent=t("mcD");
+  if(Z.showMC){
+    var rets=[];for(var k in ix.r)rets.push(ix.r[k]);
+    var mu=rets.reduce(function(a,b2){return a+b2},0)/rets.length;
+    var sig=Math.sqrt(rets.reduce(function(a,b2){return a+(b2-mu)*(b2-mu)},0)/rets.length);
+    var nSim=1000,nYr=Z.projYr,c3m=Math.min(Z.monthly*12,7258);
+    var finals=[];
+    for(var si=0;si<nSim;si++){
+      var fpM=R.fp,fpSM=R.fpSide;
+      for(var yj=0;yj<nYr;yj++){
+        var rr=mu+sig*(Math.sqrt(-2*Math.log(Math.random()))*Math.cos(2*Math.PI*Math.random()));
+        var fpRm=rr+ix.fpAdj;fpM=(fpM+c3m)*(1+fpRm/100);
+        if(Z.dedMode==="reinvest"){fpSM=(fpSM+c3m*R.mg*.9985)*(1+(rr+ix.ibAdj)/100);fpSM-=fpSM*ix.dy/100*R.mg*.5;fpSM-=fpSM*R.wt}
+        else if(Z.dedMode==="cash"){fpSM+=c3m*R.mg;fpSM-=fpSM*R.wt}}
+      var wdM=wT(fpM/ba,Z.canton,Z.status)*ba;
+      finals.push(fpM-wdM+fpSM)}
+    finals.sort(function(a,b2){return a-b2});
+    var p10=finals[Math.floor(nSim*.1)],p50=finals[Math.floor(nSim*.5)],p90=finals[Math.floor(nSim*.9)];
+    // Build histogram-like percentile bands
+    var pctLabels=[],pctP10=[],pctP50=[],pctP90=[];
+    for(var pi=0;pi<=10;pi++){var idx2=Math.floor(nSim*pi/10);pctLabels.push((pi*10)+"e %ile");
+      pctP10.push(finals[Math.max(0,idx2)]);pctP50.push(finals[Math.floor(nSim*.5)]);pctP90.push(finals[Math.min(nSim-1,idx2)])}
+    document.getElementById("mcStats").innerHTML='<div class="st"><div class="sl">P10 (pessimiste)</div><div class="sv2" style="color:#e87070">CHF '+fm(p10)+'</div></div><div class="st"><div class="sl">P50 (médian)</div><div class="sv2" style="color:#f59e0b">CHF '+fm(p50)+'</div></div><div class="st"><div class="sl">P90 (optimiste)</div><div class="sv2" style="color:#34d399">CHF '+fm(p90)+'</div></div><div class="st"><div class="sl">Avg return</div><div class="sv2" style="color:#8b5cf6">'+mu.toFixed(1)+'%</div><div class="ss">σ = '+sig.toFixed(1)+'%</div></div>';
+    // Simple distribution chart: show sorted outcomes
+    var distL=[],distD=[];var step=Math.max(1,Math.floor(nSim/50));
+    for(var di=0;di<nSim;di+=step){distL.push("");distD.push(finals[di])}
+    svgC(document.getElementById("mcChart"),distL,[{label:"3a net ("+nSim+" sim., "+nYr+t("an")+")",data:distD,color:"#8b5cf6",width:2,dots:false}],200);
+  }
+
+  // ═══ OPPORTUNITY COST ═══
+  document.getElementById("lbOpp").textContent=t("opp");
+  document.getElementById("oppArrow").textContent=Z.showOpp?"▼":"▶";
+  document.getElementById("oppContent").classList.toggle("hid",!Z.showOpp);
+  if(Z.showOpp){
+    var retireAge=65,lockYrs=Math.max(0,retireAge-5-Z.age);
+    var annC=Math.min(Z.monthly*12,7258),rHyp=(Z.projRet||8)/100;
+    // Free capital (IBKR) — same contributions, accessible anytime
+    var ibFree=0;for(var oi=0;oi<lockYrs;oi++){ibFree=(ibFree+annC*.9985)*(1+rHyp);ibFree-=ibFree*ix.dy/100*R.mg*.5;ibFree-=ibFree*R.wt}
+    // Locked capital (3a) — same contributions, with deductions
+    var fp3=0,fpS3=0;for(oi=0;oi<lockYrs;oi++){
+      fp3=(fp3+annC)*(1+rHyp+ix.fpAdj/100);
+      if(Z.dedMode==="reinvest"){fpS3=(fpS3+annC*R.mg*.9985)*(1+rHyp);fpS3-=fpS3*ix.dy/100*R.mg*.5;fpS3-=fpS3*R.wt}
+      else if(Z.dedMode==="cash"){fpS3+=annC*R.mg;fpS3-=fpS3*R.wt}}
+    var wd3=wT(fp3/ba,Z.canton,Z.status)*ba;var net3=fp3-wd3+fpS3;
+    document.getElementById("oppResult").innerHTML='<p style="font-size:11px;color:#8a7a60;margin:0 0 14px;line-height:1.6">'+t("oppRes")+'</p><div class="og"><div class="st"><div class="sl">'+t("oppAge")+'</div><div class="sv2" style="color:#fb923c">'+Z.age+' '+t("an")+'</div><div class="ss">→ '+lockYrs+' '+t("oppYrs")+'</div></div><div class="st"><div class="sl">'+t("oppFree")+'</div><div class="sv2" style="color:#ef6461">CHF '+fm(ibFree)+'</div><div class="ss">'+lockYrs+'×'+fm(annC)+'/'+t("an")+'</div></div><div class="st"><div class="sl">'+t("oppLocked")+'</div><div class="sv2" style="color:#3b82f6">CHF '+fm(net3)+'</div><div class="ss">'+t("adv")+': <span style="color:'+(net3>ibFree?"#34d399":"#e87070")+'">'+(net3>ibFree?"+":"")+'CHF '+fm(net3-ibFree)+'</span></div></div></div><p style="font-size:10px;color:#6a8a60;font-family:var(--m);margin-top:10px">'+t("oppAdvice")+'</p>'}
+
   // Year table
   document.getElementById("tt").textContent=Z.showTable?t("hiR"):t("shR");
   if(Z.showTable){var h='<div class="card" style="overflow-x:auto"><table style="font-size:10px"><thead><tr style="border-bottom:1px solid #1e2d3d"><th style="text-align:right;color:#4a6070;font-size:9px">'+t("yr")+'</th><th style="text-align:right;color:#4a6070;font-size:9px">'+t("co")+'</th><th style="text-align:right;color:#4a6070;font-size:9px">'+t("iCHF")+'</th><th style="text-align:right;color:#3b82f6;font-size:9px">3a</th><th style="text-align:right;color:#ef6461;font-size:9px">IBKR</th></tr></thead><tbody>';
@@ -341,6 +462,8 @@ function buildAll(){
   document.getElementById("idxSel2").onchange=function(){Z.idx2=this.value;render()};
   var cmpT=document.getElementById("cmpToggle");cmpT.checked=Z.cmpMode;
   cmpT.onchange=function(){Z.cmpMode=this.checked;document.getElementById("idxSel2").disabled=!Z.cmpMode;document.getElementById("idxSel2").style.opacity=Z.cmpMode?1:.4;render()};
+  document.getElementById("lbCmpOn").style.cursor="pointer";
+  document.getElementById("lbCmpOn").onclick=function(){cmpT.checked=!cmpT.checked;cmpT.onchange()};
   document.getElementById("idxSel2").disabled=!Z.cmpMode;document.getElementById("idxSel2").style.opacity=Z.cmpMode?1:.4;
   // Sliders
   mkS("s1",t("mo"),"monthly",0,605,5," CHF",function(v){return v.toLocaleString("de-CH")},"#3b82f6");
@@ -363,6 +486,8 @@ function buildAll(){
   document.getElementById("customHint").textContent=Z.customRate>0?"✋":"("+t("crH")+")";
   var crI=document.getElementById("customRateInput");crI.value=Z.customRate;
   crI.oninput=function(){Z.customRate=parseFloat(this.value)||0;document.getElementById("customHint").textContent=Z.customRate>0?"✋":"("+t("crH")+")";render()};
+  // Age slider for opportunity cost
+  mkS("sAge",t("oppAge"),"age",20,55,1," "+t("an"),null,"#fb923c");
   // Table toggle
   document.getElementById("tt").onclick=function(){Z.showTable=!Z.showTable;document.getElementById("tw").classList.toggle("hid",!Z.showTable);render()};
   render();
