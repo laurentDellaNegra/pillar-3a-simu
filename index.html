@@ -85,7 +85,7 @@ function wT(a,c,s){var b=CN[c].br[s];for(var i=0;i<b.length;i++)if(a<=b[i][0])re
 function fm(n){return Math.round(n).toLocaleString("de-CH")}
 function pp(n){return(n>=0?"+":"")+n.toFixed(1)+"%"}
 function svgC(el,lb,ds,h){h=h||280;var W=600,H=h,P=45,PR=10,PT=20,PB=30,cW=W-P-PR,cH=H-PT-PB;
-  var av=[];ds.forEach(function(d){av=av.concat(d.data)});var mn=Math.min.apply(null,av),mx=Math.max.apply(null,av),rn=mx-mn||1;
+  var av=[];ds.forEach(function(d){av=av.concat(d.data)});var mn=0,mx=Math.max.apply(null,av),rn=mx||1;
   function gx(i){return P+i/(lb.length-1)*cW}function gy(v){return PT+(1-(v-mn)/rn)*cH}
   var s='<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto">';
   for(var i=0;i<=5;i++){var v=mn+rn*i/5,yy=gy(v);s+='<line x1="'+P+'" y1="'+yy+'" x2="'+(W-PR)+'" y2="'+yy+'" stroke="#1a2530" stroke-width="1"/>';s+='<text x="'+(P-6)+'" y="'+(yy+3)+'" fill="#4a6070" font-size="9" text-anchor="end">'+(v/1000).toFixed(0)+'k</text>'}
