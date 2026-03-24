@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulateur 3a S&P 500</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--m:'DM Mono',monospace;--s:'DM Sans',sans-serif}
+body{font-family:var(--s);background:linear-gradient(160deg,#080c12,#0d1520 40%,#0a1018);color:#e4e8ec;min-height:100vh;padding:20px 10px}
+.wrap{max-width:1000px;margin:0 auto}
+.card{background:#0e1520;border:1px solid #1a2a38;border-radius:14px;padding:20px;margin-bottom:16px}
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px}
+.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:12px}
+.g6{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px;margin-bottom:16px}
+.st{background:#0a1018;border-radius:10px;padding:12px 14px;border:1px solid #141e28}
+.sl{font-size:9px;color:#4a6070;font-family:var(--m);margin-bottom:4px;letter-spacing:.5px}
+.sv2{font-size:18px;font-weight:700;font-family:var(--m)}
+.ss{font-size:10px;color:#3a5060;margin-top:2px}
+.sw{margin-bottom:18px}.sh{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+.sh span:first-child{font-size:11px;color:#7a8fa5;font-family:var(--m)}.sv{font-size:16px;font-weight:700;font-family:var(--m)}
+.stk{position:relative;height:28px}.sbg{position:absolute;left:0;top:11px;right:0;height:6px;background:#1a2530;border-radius:3px}
+.sfl{position:absolute;left:0;top:0;height:100%;border-radius:3px;transition:width .1s}
+.sgl{position:absolute;top:-2px;width:10px;height:10px;border-radius:50%;filter:blur(6px);opacity:.5;transform:translateX(-50%);transition:left .1s}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:28px;background:transparent;cursor:pointer;margin:0;position:relative;z-index:2}
+input[type=range]:focus{outline:none}
+input[type=range]::-webkit-slider-runnable-track{height:6px;background:transparent;border-radius:3px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--tc,#3b82f6);border:3px solid #0c1117;box-shadow:0 0 0 2px var(--tc),0 2px 8px rgba(0,0,0,.5);margin-top:-8px;cursor:grab;transition:transform .15s,box-shadow .15s}
+input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2);box-shadow:0 0 0 3px var(--tc),0 0 14px var(--tc)}
+input[type=range]::-webkit-slider-thumb:active{transform:scale(1.1);cursor:grabbing}
+input[type=range]::-moz-range-track{height:6px;background:transparent;border-radius:3px;border:none}
+input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--tc,#3b82f6);border:3px solid #0c1117;box-shadow:0 0 0 2px var(--tc),0 2px 8px rgba(0,0,0,.5);cursor:grab}
+.smm{display:flex;justify-content:space-between;font-size:9px;color:#3a5060;font-family:var(--m);margin-top:2px}
+.pills{display:flex;gap:6px;flex-wrap:wrap}
+.pill{padding:6px 14px;border-radius:6px;font-size:11px;font-family:var(--m);cursor:pointer;border:1px solid #2a3540;background:transparent;color:#5a7080}
+table{width:100%;border-collapse:collapse;font-size:11px;font-family:var(--m)}
+th{padding:8px 10px;text-align:right;color:#5a8a6a}th:first-child{text-align:left}
+td{padding:8px 10px;text-align:right}thead tr{border-bottom:2px solid #1e3a22}tbody tr{border-bottom:1px solid #162018}
+.tb{background:#0e1520;border:1px solid #1a2a38;border-radius:8px;color:#6b8299;padding:10px 16px;cursor:pointer;font-size:11px;font-family:var(--m);width:100%;margin-bottom:12px;text-align:center}
+.tb:hover{border-color:#3b82f6;color:#60a5fa}
+.hid{display:none}
+svg text{font-family:'DM Mono',monospace}
+.leg{display:flex;gap:16px;flex-wrap:wrap;margin-top:8px}.leg span{font-size:10px;display:flex;align-items:center;gap:5px}.leg i{width:12px;height:3px;border-radius:2px;display:inline-block}
+.og{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-top:16px}
+.sc{background:#0e1520;border-radius:12px;padding:16px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div style="margin-bottom:24px">
+    <div style="font-size:10px;font-family:var(--m);color:#3b5a70;letter-spacing:3px;margin-bottom:6px">FINPENSION · 3A · SIMULATEUR</div>
+    <h1 style="font-size:26px;font-weight:700"><span style="color:#3b82f6">S&P 500</span> en 3a vs Alternatives</h1>
+    <p style="font-size:12px;color:#5a7080;margin-top:6px">Impôt de retrait progressif · Optimisation multi-comptes</p>
+  </div>
+  <div class="card"><div style="font-size:11px;font-family:var(--m);color:#3b82f6;margin-bottom:16px;letter-spacing:1px">⚙ PARAMÈTRES</div>
+    <div class="g2"><div><div id="s1"></div><div id="s2"></div><div id="s3"></div></div>
+      <div><div style="margin-bottom:14px"><div style="font-size:11px;color:#7a8fa5;font-family:var(--m);margin-bottom:8px">Situation familiale</div><div class="pills" id="ps"></div></div>
+        <div style="margin-bottom:14px"><div style="font-size:11px;color:#7a8fa5;font-family:var(--m);margin-bottom:8px">Canton</div><div class="pills" id="pc"></div></div>
+        <div id="ti" style="background:#080c12;border-radius:8px;padding:10px 12px;font-size:10px;font-family:var(--m);color:#4a6070;line-height:1.8"></div></div></div></div>
+  <div class="g6" id="sts"></div>
+  <div class="card"><h3 style="font-size:13px;font-weight:600;margin-bottom:12px;color:#7a8fa5">Historique 2016–2025</h3><div id="hc"></div></div>
+  <div id="op" class="card" style="background:linear-gradient(135deg,#12190e,#101a14);border-color:#1e3a22"></div>
+  <div class="g3" id="scs"></div>
+  <div class="card"><button class="tb" id="pt" style="width:auto;display:inline-block;margin-bottom:0">▶ Projection future</button>
+    <div id="pco" class="hid" style="margin-top:16px"><div class="g2" style="margin-bottom:16px"><div id="s4"></div><div id="s5"></div></div>
+      <div id="pch"></div><div id="pss" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-top:12px"></div>
+      <div id="pd" style="font-size:9px;color:#3a5060;font-family:var(--m);margin-top:10px"></div></div></div>
+  <button class="tb" id="tt">▼ Afficher rendements annuels</button>
+  <div id="tw" class="hid"></div>
+  <div style="background:#080c12;border:1px solid #141e28;border-radius:12px;padding:14px;font-size:8px;color:#3a4a58;line-height:1.7;font-family:var(--m)">
+    <b style="color:#4a6070">DISCLAIMER</b><br>Impôt progressif approx. par canton/statut. VD: max 2 retraits, NE: 1, autres: ~5. Finpension 3a depuis oct. 2020. Backtest théorique. Pas un conseil financier.</div>
+</div>
+<script>
+var CN={VD:{n:"Vaud (Lausanne)",mg:{single:.33,married:.28,family:.25},w:.0055,ms:2,br:{single:[[5e4,.038],[1e5,.052],[15e4,.063],[2e5,.07],[3e5,.078],[5e5,.088],[1e15,.095]],married:[[5e4,.028],[1e5,.04],[15e4,.05],[2e5,.056],[3e5,.064],[5e5,.074],[1e15,.082]],family:[[5e4,.025],[1e5,.036],[15e4,.045],[2e5,.051],[3e5,.059],[5e5,.068],[1e15,.076]]}},GE:{n:"Genève",mg:{single:.35,married:.3,family:.27},w:.006,ms:5,br:{single:[[5e4,.042],[1e5,.056],[15e4,.066],[2e5,.073],[3e5,.082],[5e5,.092],[1e15,.1]],married:[[5e4,.032],[1e5,.044],[15e4,.054],[2e5,.06],[3e5,.068],[5e5,.078],[1e15,.086]],family:[[5e4,.028],[1e5,.04],[15e4,.049],[2e5,.055],[3e5,.063],[5e5,.072],[1e15,.08]]}},ZH:{n:"Zürich",mg:{single:.3,married:.25,family:.22},w:.0035,ms:5,br:{single:[[5e4,.028],[1e5,.04],[15e4,.05],[2e5,.055],[3e5,.062],[5e5,.07],[1e15,.076]],married:[[5e4,.02],[1e5,.03],[15e4,.038],[2e5,.043],[3e5,.05],[5e5,.058],[1e15,.064]],family:[[5e4,.017],[1e5,.026],[15e4,.034],[2e5,.039],[3e5,.046],[5e5,.054],[1e15,.06]]}},BE:{n:"Bern",mg:{single:.33,married:.28,family:.25},w:.0045,ms:5,br:{single:[[5e4,.032],[1e5,.046],[15e4,.056],[2e5,.062],[3e5,.07],[5e5,.08],[1e15,.088]],married:[[5e4,.024],[1e5,.036],[15e4,.044],[2e5,.05],[3e5,.058],[5e5,.066],[1e15,.074]],family:[[5e4,.021],[1e5,.032],[15e4,.04],[2e5,.046],[3e5,.054],[5e5,.062],[1e15,.07]]}},NE:{n:"Neuchâtel",mg:{single:.32,married:.27,family:.24},w:.0048,ms:1,br:{single:[[5e4,.034],[1e5,.048],[15e4,.058],[2e5,.065],[3e5,.074],[5e5,.084],[1e15,.09]],married:[[5e4,.026],[1e5,.038],[15e4,.048],[2e5,.054],[3e5,.062],[5e5,.072],[1e15,.08]],family:[[5e4,.023],[1e5,.034],[15e4,.043],[2e5,.049],[3e5,.057],[5e5,.066],[1e15,.074]]}},SZ:{n:"Schwyz",mg:{single:.22,married:.18,family:.16},w:.002,ms:5,br:{single:[[5e4,.018],[1e5,.025],[15e4,.03],[2e5,.035],[3e5,.04],[5e5,.046],[1e15,.05]],married:[[5e4,.012],[1e5,.018],[15e4,.023],[2e5,.027],[3e5,.032],[5e5,.038],[1e15,.042]],family:[[5e4,.01],[1e5,.015],[15e4,.02],[2e5,.024],[3e5,.029],[5e5,.035],[1e15,.039]]}},ZG:{n:"Zug",mg:{single:.22,married:.18,family:.16},w:.0018,ms:5,br:{single:[[5e4,.016],[1e5,.022],[15e4,.028],[2e5,.032],[3e5,.037],[5e5,.043],[1e15,.048]],married:[[5e4,.01],[1e5,.016],[15e4,.021],[2e5,.025],[3e5,.03],[5e5,.036],[1e15,.04]],family:[[5e4,.008],[1e5,.014],[15e4,.018],[2e5,.022],[3e5,.027],[5e5,.033],[1e15,.037]]}},VS:{n:"Valais (Sion)",mg:{single:.3,married:.25,family:.22},w:.004,ms:5,br:{single:[[5e4,.03],[1e5,.042],[15e4,.052],[2e5,.058],[3e5,.066],[5e5,.075],[1e15,.082]],married:[[5e4,.022],[1e5,.032],[15e4,.04],[2e5,.046],[3e5,.054],[5e5,.062],[1e15,.07]],family:[[5e4,.019],[1e5,.028],[15e4,.036],[2e5,.042],[3e5,.05],[5e5,.058],[1e15,.066]]}}};
+var SLB={single:"Célibataire",married:"Marié(e)",family:"Marié(e) + enfants"};
+var SPU={2016:11.96,2017:21.83,2018:-4.38,2019:31.49,2020:18.4,2021:28.71,2022:-18.11,2023:26.29,2024:25.02,2025:8.69};
+var FX={2015:1.001,2016:1.0186,2017:.974,2018:.9842,2019:.9674,2020:.8803,2021:.9115,2022:.9228,2023:.8399,2024:.9044,2025:.881};
+var G1={2016:5.8,2017:19.2,2018:-8.5,2019:25.3,2020:5.4,2021:20.7,2022:-16.5,2023:8.3,2024:16.7,2025:11};
+var DY={2016:1.87,2017:1.84,2018:2.09,2019:1.83,2020:1.58,2021:1.27,2022:1.66,2023:1.47,2024:1.24,2025:1.3};
+var YR=[2016,2017,2018,2019,2020,2021,2022,2023,2024,2025];
+var MA={2016:6768,2017:6768,2018:6768,2019:6826,2020:6826,2021:6883,2022:6883,2023:7056,2024:7056,2025:7258};
+function spC(y){return((1+SPU[y]/100)*(FX[y]/FX[y-1])-1)*100}
+function wT(a,c,s){var b=CN[c].br[s];for(var i=0;i<b.length;i++)if(a<=b[i][0])return a*b[i][1];return 0}
+function fm(n){return Math.round(n).toLocaleString("de-CH")}
+function pp(n){return(n>=0?"+":"")+n.toFixed(1)+"%"}
+function svgC(el,lb,ds,h){h=h||280;var W=600,H=h,P=45,PR=10,PT=20,PB=30,cW=W-P-PR,cH=H-PT-PB;
+  var av=[];ds.forEach(function(d){av=av.concat(d.data)});var mn=Math.min.apply(null,av),mx=Math.max.apply(null,av),rn=mx-mn||1;
+  function gx(i){return P+i/(lb.length-1)*cW}function gy(v){return PT+(1-(v-mn)/rn)*cH}
+  var s='<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto">';
+  for(var i=0;i<=5;i++){var v=mn+rn*i/5,yy=gy(v);s+='<line x1="'+P+'" y1="'+yy+'" x2="'+(W-PR)+'" y2="'+yy+'" stroke="#1a2530" stroke-width="1"/>';s+='<text x="'+(P-6)+'" y="'+(yy+3)+'" fill="#4a6070" font-size="9" text-anchor="end">'+(v/1000).toFixed(0)+'k</text>'}
+  lb.forEach(function(l,i){s+='<text x="'+gx(i)+'" y="'+(H-8)+'" fill="#4a6070" font-size="9" text-anchor="middle">'+l+'</text>'});
+  ds.forEach(function(d){var p="";d.data.forEach(function(v,i){p+=(i===0?"M":"L")+gx(i).toFixed(1)+","+gy(v).toFixed(1)});
+    s+='<path d="'+p+'" fill="none" stroke="'+d.color+'" stroke-width="'+(d.width||1.5)+'" stroke-linecap="round" stroke-linejoin="round"/>';
+    if(d.dots!==false)d.data.forEach(function(v,i){s+='<circle cx="'+gx(i)+'" cy="'+gy(v)+'" r="'+(d.r||2)+'" fill="'+d.color+'"/>'})});
+  s+='</svg><div class="leg">';ds.forEach(function(d){s+='<span><i style="background:'+d.color+'"></i>'+d.label+'</span>'});s+='</div>';el.innerHTML=s}
+
+var Z={monthly:605,salary:115000,status:"single",canton:"VD",startBal:0,projYears:20,projReturn:8,showProj:false,showTable:false};
+
+function mkS(id,lb,ky,mn,mx,st,un,ff,ac){var el=document.getElementById(id);
+  el.innerHTML='<div class="sw"><div class="sh"><span>'+lb+'</span><span class="sv" style="color:'+ac+'" id="'+ky+'V"></span></div><div class="stk"><div class="sbg"><div class="sfl" id="'+ky+'F" style="background:'+ac+'"></div><div class="sgl" id="'+ky+'G" style="background:'+ac+'"></div></div><input type="range" min="'+mn+'" max="'+mx+'" step="'+st+'" value="'+Z[ky]+'" style="--tc:'+ac+'" id="'+ky+'I"></div><div class="smm"><span>'+(ff?ff(mn):mn)+(un||"")+'</span><span>'+(ff?ff(mx):mx)+(un||"")+'</span></div></div>';
+  var inp=document.getElementById(ky+"I");function u(){var v=+inp.value;Z[ky]=v;var p=((v-mn)/(mx-mn))*100;document.getElementById(ky+"F").style.width=p+"%";document.getElementById(ky+"G").style.left=p+"%";document.getElementById(ky+"V").textContent=(ff?ff(v):v)+(un||"")}
+  inp.oninput=function(){u();render()};u()}
+
+function mkP(id,items,ky,cl){var el=document.getElementById(id);el.innerHTML="";
+  Object.keys(items).forEach(function(k){var b=document.createElement("button");b.className="pill";b.textContent=typeof items[k]==="string"?items[k]:k;
+    if(Z[ky]===k)b.style.cssText="background:"+cl+"18;border-color:"+cl+";color:"+cl+";font-weight:600";
+    b.onclick=function(){Z[ky]=k;mkP(id,items,ky,cl);render()};el.appendChild(b)})}
+
+function calc(){var ct=CN[Z.canton],mg=ct.mg[Z.status],wt=ct.w,ms=ct.ms;
+  var v=Z.startBal,g=Z.startBal,s=Z.startBal,vd=0,vw=0,gt=0,gs=0,st2=0,ss=0;var cL=[],cV=[],cG=[],cS=[];
+  for(var yi=0;yi<YR.length;yi++){var yr=YR[yi];var c=Math.min(Z.monthly*12,MA[yr]),sp=spC(yr),g1=G1[yr],dy=DY[yr]/100,vG=sp/100,sP=sp-.39;
+    v=(v+c*.9985)*(1+vG);var aB=v/(1+vG/2),dd=aB*dy*mg,ww=v*wt;vd+=dd;vw+=ww;v-=(dd+ww);
+    gt+=c*mg;g=(g+c)*(1+g1/100);gs=(gs+c*mg)*(1+vG);gs-=gs*dy*mg/(1+vG/2)*.5;gs-=gs*wt;
+    st2+=c*mg;s=(s+c)*(1+sP/100);ss=(ss+c*mg)*(1+vG);ss-=ss*dy*mg/(1+vG/2)*.5;ss-=ss*wt;
+    cL.push(yr);cV.push(Math.round(v));cG.push(Math.round(g+gs));cS.push(Math.round(s+ss))}
+  var tc=Z.startBal;for(yi=0;yi<YR.length;yi++)tc+=Math.min(Z.monthly*12,MA[YR[yi]]);
+  var sc=[];for(var n=1;n<=ms;n++){var pa=s/n,tp=wT(pa,Z.canton,Z.status)*n;sc.push({ac:n,pa:s/n,tt:tp,rt:s>0?tp/s:0,nt:s-tp})}
+  var s1=sc[0].tt;var bs=sc[sc.length-1];
+  if(sc.length>1){var mxS=s1-sc[sc.length-1].tt;for(var i=0;i<sc.length;i++){if(mxS<=0||(s1-sc[i].tt)>=mxS*.95){bs=sc[i];break}}}
+  var sNO=s-bs.tt+ss,sN1=s-s1+ss,gWO=wT(g/bs.ac,Z.canton,Z.status)*bs.ac,gNO=g-gWO+gs,vN=v*.9985;
+  var proj=null;
+  if(Z.showProj){var c2=Math.min(Z.monthly*12,7258),r=Z.projReturn/100;
+    var sB=s,sS=ss,gB=g,gS=gs,vB=v;var pL=[],pV=[],pG=[],pS=[];
+    for(i=1;i<=Z.projYears;i++){var dy2=.013;vB=(vB+c2*.9985)*(1+r);vB-=vB/(1+r/2)*dy2*mg;vB-=vB*wt;
+      sB=(sB+c2)*(1+r-.0039);sS=(sS+c2*mg)*(1+r);sS-=sS*dy2*mg/(1+r/2)*.5;sS-=sS*wt;
+      gB=(gB+c2)*(1+r*.85);gS=(gS+c2*mg)*(1+r);gS-=gS*dy2*mg/(1+r/2)*.5;gS-=gS*wt;
+      pL.push(2025+i);pV.push(Math.round(vB));pG.push(Math.round(gB+gS));pS.push(Math.round(sB+sS))}
+    var ly=2025+Z.projYears,oN=bs.ac;
+    proj={l:pL,v:pV,g:pG,s:pS,ly:ly,sN:sB-wT(sB/oN,Z.canton,Z.status)*oN+sS,gN:gB-wT(gB/oN,Z.canton,Z.status)*oN+gS,vN:vB*.9985,sW:wT(sB/oN,Z.canton,Z.status)*oN,gW:wT(gB/oN,Z.canton,Z.status)*oN,oN:oN}}
+  return{cL:cL,cV:cV,cG:cG,cS:cS,v:v,g:g,s:s,gs:gs,ss:ss,tc:tc,vd:vd,vw:vw,gt:gt,st2:st2,sc:sc,bs:bs,s1:s1,ws:s1-bs.tt,sNO:sNO,sN1:sN1,gNO:gNO,gWO:gWO,vN:vN,mg:mg,wt:wt,ms:ms,ct:ct,proj:proj}}
+
+function render(){var R=calc(),ct=R.ct,b=R.bs,ba=b.ac;
+  document.getElementById("ti").innerHTML=ct.n+" · Marginal: <span style='color:#60a5fa'>"+(R.mg*100).toFixed(0)+"%</span> · Fortune: <span style='color:#60a5fa'>"+(R.wt*100).toFixed(2)+"%</span><br>Cotisation: <span style='color:#34d399'>CHF "+fm(Math.min(Z.monthly*12,7258))+"</span> · Éco/an: <span style='color:#34d399'>CHF "+fm(Math.min(Z.monthly*12,7258)*R.mg)+"</span>";
+  var w=[{n:"VOO (IBKR)",v:R.vN,c:"#ef6461"},{n:"Global 100 (3a)",v:R.gNO,c:"#2a9e72"},{n:"S&P500 3a ("+ba+"c)",v:R.sNO,c:"#3b82f6"}].sort(function(a,b2){return b2.v-a.v});
+  document.getElementById("sts").innerHTML='<div class="st"><div class="sl">🏆 GAGNANT</div><div class="sv2" style="color:'+w[0].c+'">'+w[0].n.split("(")[0]+'</div><div class="ss">CHF '+fm(w[0].v)+'</div></div><div class="st"><div class="sl">S&P500 3a ('+ba+'c)</div><div class="sv2" style="color:#3b82f6">CHF '+fm(R.sNO)+'</div><div class="ss">'+pp((R.sNO/R.tc-1)*100)+'</div></div><div class="st"><div class="sl">GLOBAL 100</div><div class="sv2" style="color:#2a9e72">CHF '+fm(R.gNO)+'</div><div class="ss">'+pp((R.gNO/R.tc-1)*100)+'</div></div><div class="st"><div class="sl">VOO IBKR</div><div class="sv2" style="color:#ef6461">CHF '+fm(R.vN)+'</div><div class="ss">'+pp((R.vN/R.tc-1)*100)+'</div></div><div class="st"><div class="sl">COTISÉ</div><div class="sv2">CHF '+fm(R.tc)+'</div><div class="ss">10 ans</div></div><div class="st"><div class="sl">ÉCO. SPLIT</div><div class="sv2" style="color:#f59e0b">CHF '+fm(R.ws)+'</div><div class="ss">'+ba+'c vs 1</div></div>';
+  svgC(document.getElementById("hc"),R.cL,[{label:"VOO (IBKR)",data:R.cV,color:"#ef6461",width:1.5,r:2},{label:"Global 100 (3a)",data:R.cG,color:"#2a9e72",width:1.5,r:2},{label:"S&P500 Pension (3a)",data:R.cS,color:"#3b82f6",width:2.5,r:3}]);
+  // Opti
+  var wn=R.ms<5?' <span style="color:#f59e0b">⚠️ '+ct.n+' limite à <b>'+R.ms+'</b> retrait'+(R.ms>1?"s":"")+'.</span>':"";
+  var tr="";R.sc.forEach(function(w2){var sv=R.s1-w2.tt,io=w2.ac===ba;
+    tr+='<tr style="background:'+(io?"#1a3a2218":"transparent")+'"><td style="text-align:left;color:'+(io?"#34d399":"#8baa96")+';font-weight:'+(io?700:400)+'">'+w2.ac+' cpte'+(w2.ac>1?"s":"")+" "+(io?"⭐ optimal":"")+'</td><td style="color:#a0baa8">CHF '+fm(w2.pa)+'</td><td style="color:'+(io?"#34d399":w2.ac===1?"#e87070":"#a0baa8")+'">'+(w2.rt*100).toFixed(2)+'%</td><td style="color:#e87070">CHF '+fm(w2.tt)+'</td><td style="color:'+(io?"#34d399":"#c9d6e3")+';font-weight:'+(io?700:400)+'">CHF '+fm(w2.nt)+'</td><td style="color:'+(sv>0?"#34d399":"#4a6070")+'">'+(sv>0?"+CHF "+fm(sv):"—")+"</td></tr>"});
+  var rc=ba===1?"1 Finpension":ba===2?"1 Finpension + 1 VIAC":Math.ceil(ba/2)+" Finpension + "+Math.floor(ba/2)+" VIAC";
+  var ax=R.ms<5?"⚠️ <b style='color:#f59e0b'>Limite "+ct.n+":</b> max <b>"+R.ms+"</b>.":"💡 <b style='color:#6a9a7a'>Conseil:</b>";
+  document.getElementById("op").innerHTML='<div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"><span style="font-size:20px">🏦</span><h3 style="font-size:15px;font-weight:700;color:#34d399">Optimisation multi-comptes 3a</h3></div><p style="font-size:11px;color:#5a8a6a;margin:6px 0 16px;line-height:1.6">Impôt <b style="color:#7ac9a0">progressif</b>.'+wn+'</p><div style="overflow-x:auto"><table><thead><tr><th style="text-align:left">Comptes</th><th>Montant</th><th>Taux</th><th>Impôt</th><th>Net</th><th>Économie</th></tr></thead><tbody>'+tr+'</tbody></table></div><div class="og"><div style="background:#0a140e;border-radius:10px;padding:14px;border:1px solid #1a2a1e;font-size:11px;font-family:var(--m);color:#6b8a7a;line-height:1.8"><div style="font-size:9px;color:#4a7060;margin-bottom:4px">1 COMPTE</div>Taux: <span style="color:#e87070">'+(R.sc[0].rt*100).toFixed(2)+'%</span><br>Impôt: <span style="color:#e87070">-CHF '+fm(R.s1)+'</span><div style="border-top:1px solid #1a2a1e;padding-top:6px;margin-top:6px"><span style="font-size:15px;font-weight:700;color:#8ba3bc">Net: CHF '+fm(R.sN1)+'</span></div></div><div style="background:#0a140e;border-radius:10px;padding:14px;border:1px solid #2a4a2e;font-size:11px;font-family:var(--m);color:#6b8a7a;line-height:1.8"><div style="font-size:9px;color:#34d399;margin-bottom:4px">'+ba+' COMPTE'+(ba>1?"S":"")+" ⭐</div>Taux: <span style='color:#34d399'>"+(b.rt*100).toFixed(2)+'%</span><br>Impôt: <span style="color:#e87070">-CHF '+fm(b.tt)+'</span><div style="border-top:1px solid #2a4a2e;padding-top:6px;margin-top:6px"><span style="font-size:15px;font-weight:700;color:#34d399">Net: CHF '+fm(R.sNO)+'</span></div></div><div style="background:#14120a;border-radius:10px;padding:14px;border:1px solid #3a3420"><div style="font-size:9px;color:#f59e0b;font-family:var(--m);margin-bottom:4px">ÉCONOMIE</div><div style="font-size:28px;font-weight:700;color:#f59e0b;font-family:var(--m)">CHF '+fm(R.ws)+'</div><div style="font-size:10px;color:#8a7a50;margin-top:4px">'+ba+" cpte"+(ba>1?"s":"")+"</div></div></div><div style='margin-top:14px;font-size:10px;line-height:1.7;background:#080e0a;border-radius:8px;padding:10px 12px;font-family:var(--m);color:#4a6a55'>"+ax+' Ouvre <b style="color:#34d399">'+ba+" cpte"+(ba>1?"s":"")+"</b> ("+rc+'). Retraits 3a+2e pilier = <b style="color:#e87070">cumulés</b>.</div>';
+  // Strat cards
+  var strats=[{nm:"S&P500 Pension 99%",tg:"3a×"+ba,cl:"#3b82f6",nt:R.sNO,rw:[["Solde 3a",R.s,""],["Impôt ("+ba+"c)",-b.tt,"n"],["Éco. réinvesties",R.ss,"p"],["Déductions",R.st2,"p"]],nf:["Fee 0.39% · TER ~0%","99% US pension fund","WHT reclaim total"]},{nm:"Global 100",tg:"3a×"+ba,cl:"#2a9e72",nt:R.gNO,rw:[["Solde 3a",R.g,""],["Impôt ("+ba+"c)",-R.gWO,"n"],["Éco. réinvesties",R.gs,"p"],["Déductions",R.gt,"p"]],nf:["Fee 0.39% + 0.02%","~40% CH + ~36% US","Diversification"]},{nm:"VOO sur IBKR",tg:"3b",cl:"#ef6461",nt:R.vN,rw:[["Valeur brute",R.v,""],["Timbre",-R.v*.0015,"n"],["Div. tax",-R.vd,"n"],["Fortune",-R.vw,"n"]],nf:["TER 0.03%","Dividendes 33%","Fortune ~0.55%/an"]}];
+  document.getElementById("scs").innerHTML=strats.map(function(s){var i3=s.tg.indexOf("3a")===0;
+    return'<div class="sc" style="border:1px solid '+s.cl+'22"><div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><div style="width:8px;height:8px;border-radius:2px;background:'+s.cl+'"></div><span style="font-size:13px;font-weight:600">'+s.nm+'</span><span style="font-size:9px;font-family:var(--m);margin-left:auto;padding:2px 6px;border-radius:4px;background:'+(i3?"#0a1a10":"#1a1010")+";color:"+(i3?"#34d399":"#e87070")+'">'+s.tg.toUpperCase()+'</span></div><div style="font-size:10px;font-family:var(--m);color:#6b8299;line-height:2">'+s.rw.map(function(r){return"<div>"+r[0]+': <span style="color:'+(r[2]==="n"?"#e87070":r[2]==="p"?"#34d399":"#c9d6e3")+'">'+(r[1]<0?"-":"")+(r[2]==="p"?"+":"")+"CHF "+fm(Math.abs(r[1]))+"</span></div>"}).join("")+'<div style="border-top:1px solid #1a2530;padding-top:6px;margin-top:6px"><span style="font-size:16px;font-weight:700;color:'+s.cl+'">CHF '+fm(s.nt)+'</span> <span style="font-size:10px;color:#5a7080">'+pp((s.nt/R.tc-1)*100)+'</span></div></div><div style="margin-top:10px;padding:6px 8px;background:#080c12;border-radius:6px;font-size:9px;color:#3a5060;line-height:1.6">'+s.nf.map(function(n){return"<div>"+n+"</div>"}).join("")+"</div></div>"}).join("");
+  if(Z.showProj&&R.proj){var P=R.proj;
+    svgC(document.getElementById("pch"),P.l,[{label:"VOO (IBKR)",data:P.v,color:"#ef6461",width:1.5,dots:false},{label:"Global 100 (3a)",data:P.g,color:"#2a9e72",width:1.5,dots:false},{label:"S&P500 Pension (3a)",data:P.s,color:"#3b82f6",width:2.5,dots:false}],260);
+    document.getElementById("pss").innerHTML='<div class="st"><div class="sl">S&P500 3a '+P.ly+'</div><div class="sv2" style="color:#3b82f6">CHF '+fm(P.sN)+'</div><div class="ss">Impôt '+P.oN+'c: CHF '+fm(P.sW)+'</div></div><div class="st"><div class="sl">Global 100 '+P.ly+'</div><div class="sv2" style="color:#2a9e72">CHF '+fm(P.gN)+'</div><div class="ss">Impôt '+P.oN+'c: CHF '+fm(P.gW)+'</div></div><div class="st"><div class="sl">VOO IBKR '+P.ly+'</div><div class="sv2" style="color:#ef6461">CHF '+fm(P.vN)+'</div><div class="ss">Pas d\'impôt retrait</div></div>';
+    document.getElementById("pd").textContent="⚠ Hypothétique. Global 100 ≈ 85% S&P500. Impôt: "+ba+"c ("+ct.n+")."}
+  if(Z.showTable){var h='<div class="card" style="overflow-x:auto"><table style="font-size:10px"><thead><tr style="border-bottom:1px solid #1e2d3d"><th style="text-align:right;color:#4a6070;font-size:9px">Année</th><th style="text-align:right;color:#4a6070;font-size:9px">Cotis.</th><th style="text-align:right;color:#4a6070;font-size:9px">S&P CHF</th><th style="text-align:right;color:#4a6070;font-size:9px">Global100</th><th style="text-align:right;color:#4a6070;font-size:9px">SP Pension</th></tr></thead><tbody>';
+    YR.forEach(function(y){var sp=spC(y),spp=sp-.39,g=G1[y],c=Math.min(Z.monthly*12,MA[y]);
+      h+='<tr style="border-bottom:1px solid #141e28"><td style="padding:4px 8px;color:#6b8299">'+y+'</td><td style="padding:4px 8px;color:#8ba3bc">'+fm(c)+'</td><td style="padding:4px 8px;color:'+(sp>=0?"#34d399":"#e87070")+'">'+pp(sp)+'</td><td style="padding:4px 8px;color:'+(g>=0?"#2a9e72":"#e87070")+'">'+pp(g)+'</td><td style="padding:4px 8px;color:'+(spp>=0?"#3b82f6":"#e87070")+'">'+pp(spp)+'</td></tr>'});
+    h+="</tbody></table></div>";document.getElementById("tw").innerHTML=h}}
+
+function init(){
+  mkS("s1","Cotisation mensuelle","monthly",0,605,5," CHF",function(v){return v.toLocaleString("de-CH")},"#3b82f6");
+  mkS("s2","Salaire brut annuel","salary",50000,250000,5000," CHF",function(v){return(v/1000).toFixed(0)+"k"},"#60a5fa");
+  mkS("s3","Solde initial","startBal",0,100000,1000," CHF",function(v){return(v/1000).toFixed(0)+"k"},"#8b5cf6");
+  mkP("ps",SLB,"status","#3b82f6");var cl={};Object.keys(CN).forEach(function(k){cl[k]=k});mkP("pc",cl,"canton","#60a5fa");
+  mkS("s4","Horizon","projYears",5,35,1," ans",null,"#8b5cf6");
+  mkS("s5","Rendement S&P500 hyp.","projReturn",2,14,.5,"%",null,"#f59e0b");
+  document.getElementById("pt").onclick=function(){Z.showProj=!Z.showProj;document.getElementById("pco").classList.toggle("hid",!Z.showProj);this.textContent=(Z.showProj?"▼":"▶")+" Projection future";render()};
+  document.getElementById("tt").onclick=function(){Z.showTable=!Z.showTable;document.getElementById("tw").classList.toggle("hid",!Z.showTable);this.textContent=(Z.showTable?"▲ Masquer":"▼ Afficher")+" rendements annuels";render()};
+  render()}
+init();
+</script>
+</body>
+</html>
