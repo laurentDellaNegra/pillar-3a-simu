@@ -64,6 +64,7 @@ select option{background:#0e1520;color:#e4e8ec}
     <div class="g2"><div><div id="s1"></div><div id="s2"></div><div id="s3"></div></div>
       <div><div style="margin-bottom:14px"><div style="font-size:11px;color:#7a8fa5;font-family:var(--m);margin-bottom:8px">Situation familiale</div><div class="pills" id="ps"></div></div>
         <div style="margin-bottom:14px"><div style="font-size:11px;color:#7a8fa5;font-family:var(--m);margin-bottom:8px">Canton</div><div class="pills" id="pc"></div></div>
+        <div style="margin-bottom:14px"><div style="font-size:11px;color:#7a8fa5;font-family:var(--m);margin-bottom:8px">Économie fiscale 3a</div><div class="pills" id="pdm"></div></div>
         <div id="ti" style="background:#080c12;border-radius:8px;padding:10px 12px;font-size:10px;font-family:var(--m);color:#4a6070;line-height:1.8"></div></div></div></div>
   <div class="g6" id="sts"></div>
   <div class="card"><h3 id="chartTitle" style="font-size:13px;font-weight:600;margin-bottom:12px;color:#7a8fa5"></h3><div id="hc"></div></div>
@@ -170,7 +171,8 @@ function svgC(el,lb,ds,h){h=h||280;var W=620,H=h,P=50,PR=10,PT=20,PB=30,cW=W-P-P
     if(d.dots!==false)d.data.forEach(function(v,i){s+='<circle cx="'+gx(i)+'" cy="'+gy(v)+'" r="'+(d.r||2)+'" fill="'+d.color+'"/>'})});
   s+='</svg><div class="leg">';ds.forEach(function(d){s+='<span><i style="background:'+d.color+'"></i>'+d.label+'</span>'});s+='</div>';el.innerHTML=s}
 
-var Z={monthly:605,salary:115000,status:"single",canton:"VD",startBal:0,idx:"voo",showTable:false};
+var Z={monthly:605,salary:115000,status:"single",canton:"VD",startBal:0,idx:"voo",showTable:false,dedMode:"reinvest"};
+var DM_LABELS={reinvest:"Réinvestir (IBKR)",cash:"Garder en cash",ignore:"Ne pas inclure"};
 
 function mkS(id,lb,ky,mn,mx,st,un,ff,ac){var el=document.getElementById(id);
   el.innerHTML='<div class="sw"><div class="sh"><span>'+lb+'</span><span class="sv" style="color:'+ac+'" id="'+ky+'V"></span></div><div class="stk"><div class="sbg"><div class="sfl" id="'+ky+'F" style="background:'+ac+'"></div><div class="sgl" id="'+ky+'G" style="background:'+ac+'"></div></div><input type="range" min="'+mn+'" max="'+mx+'" step="'+st+'" value="'+Z[ky]+'" style="--tc:'+ac+'" id="'+ky+'I"></div><div class="smm"><span>'+(ff?ff(mn):mn)+(un||"")+'</span><span>'+(ff?ff(mx):mx)+(un||"")+'</span></div></div>';
@@ -185,6 +187,7 @@ function mkP(id,items,ky,cl){var el=document.getElementById(id);el.innerHTML="";
 function calc(){
   var ct=CN[Z.canton],mg=ct.mg[Z.status],wt=ct.w,ms=ct.ms;
   var ix=IDX[Z.idx],dy=ix.dy/100;
+  var dm=Z.dedMode; // "reinvest" | "cash" | "ignore"
   var fp=Z.startBal,ib=Z.startBal;
   var fpTs=0,fpSide=0,ibDt=0,ibWt=0;
   var cL=[],cFP=[],cIB=[];
@@ -192,21 +195,33 @@ function calc(){
   for(var yi=0;yi<YR.length;yi++){
     var yr=YR[yi],c=Math.min(Z.monthly*12,MA[yr]);
     var baseR=ix.r[yr];
-    var fpR=baseR+ix.fpAdj; // Finpension pension fund return
-    var ibR=baseR+ix.ibAdj; // IBKR ETF return (before CH personal taxes)
+    var fpR=baseR+ix.fpAdj;
+    var ibR=baseR+ix.ibAdj;
 
     // Finpension 3a
     fpTs+=c*mg;
     fp=(fp+c)*(1+fpR/100);
-    // Side pocket: tax savings reinvested in same ETF on IBKR
-    var ibGr=ibR/100;
-    fpSide=(fpSide+c*mg)*(1+ibGr);
-    fpSide-=fpSide*dy*mg/(1+ibGr/2)*.5;
-    fpSide-=fpSide*wt;
+
+    // Side pocket: what happens with the tax savings
+    var saving=c*mg;
+    if(dm==="reinvest"){
+      // Reinvest in same ETF on IBKR — subject to div tax + wealth tax
+      var ibGr=ibR/100;
+      fpSide=(fpSide+saving)*(1+ibGr);
+      fpSide-=fpSide*dy*mg/(1+ibGr/2)*.5;
+      fpSide-=fpSide*wt;
+    }else if(dm==="cash"){
+      // Keep as cash — no return, but still counts as wealth
+      fpSide=fpSide+saving;
+      // No growth, but wealth tax still applies on cash
+      fpSide-=fpSide*wt;
+    }
+    // dm==="ignore" → fpSide stays 0
 
     // IBKR direct
-    ib=(ib+c*.9985)*(1+ibGr);
-    var aB=ib/(1+ibGr/2);
+    var ibGr2=ibR/100;
+    ib=(ib+c*.9985)*(1+ibGr2);
+    var aB=ib/(1+ibGr2/2);
     var dd=aB*dy*mg,ww=ib*wt;
     ibDt+=dd;ibWt+=ww;ib-=(dd+ww);
 
@@ -218,7 +233,7 @@ function calc(){
   var s1=sc[0].tt;var bs=sc[sc.length-1];
   if(sc.length>1){var mxS=s1-sc[sc.length-1].tt;for(var i=0;i<sc.length;i++){if(mxS<=0||(s1-sc[i].tt)>=mxS*.95){bs=sc[i];break}}}
 
-  return{cL:cL,cFP:cFP,cIB:cIB,fp:fp,ib:ib,fpSide:fpSide,
+  return{cL:cL,cFP:cFP,cIB:cIB,fp:fp,ib:ib,fpSide:fpSide,dm:dm,
     tc:tc,ibDt:ibDt,ibWt:ibWt,fpTs:fpTs,
     sc:sc,bs:bs,s1:s1,ws:s1-bs.tt,
     fpNetOpt:fp-bs.tt+fpSide,fpNet1:fp-s1+fpSide,ibNet:ib*.9985,
@@ -248,8 +263,13 @@ function render(){
   if(ix.ibAdj<-ix.ter)ibCostStr+=" + WHT drag: "+(-ix.ibAdj-ix.ter).toFixed(2)+"%";
   if(ix.ibAdj>-ix.ter)ibCostStr+=" (WHT reclaim: +"+(-ix.ibAdj-(-ix.ter)).toFixed(2)+"%)";
   var fpAllocLines=ix.alloc.map(function(a){return"<span style='color:#34d399'>"+a.pct+"%</span> "+a.fund.replace("Swisscanto ","").replace("IPF I ","").replace("(CH) ","").replace("Index Equity Fund ","")+" <span style='color:#4a6a78'>("+a.ter+")</span>"});
+  var sideLabel=R.dm==="reinvest"?"Éco. fiscale réinvestie (IBKR)":R.dm==="cash"?"Éco. fiscale (cash)":"";
+  var fpRows=[["Solde 3a",R.fp,""],["Impôt retrait ("+ba+"c)",-b.tt,"n"]];
+  if(R.dm!=="ignore")fpRows.push([sideLabel,R.fpSide,"p"]);
+  fpRows.push(["Déductions reçues (10a)",R.fpTs,"p"]);
+  var dmNote=R.dm==="reinvest"?"Éco. fiscale réinvestie dans "+ix.name+" sur IBKR":R.dm==="cash"?"Éco. fiscale gardée en cash (impôt fortune)":"Éco. fiscale non incluse (comparaison pure)";
   var strats=[
-    {nm:ix.name+" Pension (3a)",tg:"3a×"+ba,cl:"#3b82f6",nt:R.fpNetOpt,rw:[["Solde 3a",R.fp,""],["Impôt retrait ("+ba+"c)",-b.tt,"n"],["Éco. impôt réinvesties",R.fpSide,"p"],["Déductions reçues",R.fpTs,"p"]],nf:[fpCostStr,"WHT reclaim complet (fonds pension)","Pas d'impôt fortune ni dividendes","─── Allocation Finpension ───"].concat(fpAllocLines)},
+    {nm:ix.name+" Pension (3a)",tg:"3a×"+ba,cl:"#3b82f6",nt:R.fpNetOpt,rw:fpRows,nf:[fpCostStr,"WHT reclaim complet (fonds pension)","Pas d'impôt fortune ni dividendes","📌 "+dmNote,"─── Allocation Finpension ───"].concat(fpAllocLines)},
     {nm:ix.name+" sur IBKR",tg:"direct",cl:"#ef6461",nt:R.ibNet,rw:[["Valeur brute",R.ib,""],["Timbre vente (0.15%)",-R.ib*.0015,"n"],["Impôt dividendes (10a)",-R.ibDt,"n"],["Impôt fortune (10a)",-R.ibWt,"n"]],nf:[ibCostStr,"Dividendes imposés à "+Math.round(R.mg*100)+"%","Fortune ~"+(R.wt*100).toFixed(2)+"%/an","Plus-values exonérées 🇨🇭"]}
   ];
   document.getElementById("scs").innerHTML=strats.map(function(s){var i3=s.tg.indexOf("3a")===0;
@@ -272,6 +292,7 @@ function init(){
   mkS("s2","Salaire brut annuel","salary",50000,250000,5000," CHF",function(v){return(v/1000).toFixed(0)+"k"},"#60a5fa");
   mkS("s3","Solde initial","startBal",0,100000,1000," CHF",function(v){return(v/1000).toFixed(0)+"k"},"#8b5cf6");
   mkP("ps",SLB,"status","#3b82f6");var cl={};Object.keys(CN).forEach(function(k){cl[k]=k});mkP("pc",cl,"canton","#60a5fa");
+  mkP("pdm",DM_LABELS,"dedMode","#f59e0b");
   document.getElementById("tt").onclick=function(){Z.showTable=!Z.showTable;document.getElementById("tw").classList.toggle("hid",!Z.showTable);this.textContent=(Z.showTable?"▲ Masquer":"▼ Afficher")+" rendements annuels";render()};
   render();
 }
