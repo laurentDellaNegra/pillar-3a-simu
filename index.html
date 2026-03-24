@@ -184,8 +184,30 @@ function mkP(id,items,ky,cl){var el=document.getElementById(id);el.innerHTML="";
     if(Z[ky]===k)b.style.cssText="background:"+cl+"18;border-color:"+cl+";color:"+cl+";font-weight:600";
     b.onclick=function(){Z[ky]=k;mkP(id,items,ky,cl);render()};el.appendChild(b)})}
 
+// Marginal tax rate as function of salary, canton, status
+// Canton base rates are calibrated for ~115k single. We scale with a simple progressive model.
+// Swiss marginal rates roughly: 50k→~18%, 80k→~26%, 115k→~33%, 150k→~37%, 200k→~40%, 250k→~42% (Vaud single)
+function getMarginal(salary,canton,status){
+  var base=CN[canton].mg[status]; // reference rate at ~115k
+  // Scale factor: ratio of actual rate to base rate at different salary levels
+  // Using a piecewise linear approximation of Swiss progressive tax
+  var brackets=[[50000,.55],[80000,.78],[100000,.90],[115000,1.0],[150000,1.10],[200000,1.18],[250000,1.24]];
+  var factor=1.0;
+  for(var i=0;i<brackets.length-1;i++){
+    if(salary<=brackets[i+1][0]){
+      var t=(salary-brackets[i][0])/(brackets[i+1][0]-brackets[i][0]);
+      factor=brackets[i][1]+t*(brackets[i+1][1]-brackets[i][1]);
+      break;
+    }
+  }
+  if(salary>=250000)factor=1.24;
+  if(salary<=50000)factor=0.55;
+  var rate=base*factor;
+  return Math.min(rate,0.45); // cap at 45%
+}
+
 function calc(){
-  var ct=CN[Z.canton],mg=ct.mg[Z.status],wt=ct.w,ms=ct.ms;
+  var ct=CN[Z.canton],mg=getMarginal(Z.salary,Z.canton,Z.status),wt=ct.w,ms=ct.ms;
   var ix=IDX[Z.idx],dy=ix.dy/100;
   var dm=Z.dedMode; // "reinvest" | "cash" | "ignore"
   var fp=Z.startBal,ib=Z.startBal;
@@ -246,7 +268,7 @@ function render(){
   ix.alloc.forEach(function(a){allocHtml+='<tr style="border-bottom:1px solid #0e1820"><td style="padding:3px 6px;color:#34d399;font-weight:700">'+a.pct+'%</td><td style="padding:3px 6px;color:#8aa0b0;text-align:left">'+a.fund+'</td><td style="padding:3px 6px;color:#6a8a78;text-align:right">'+a.ter+'</td></tr>'});
   allocHtml+='</tbody></table>';
   document.getElementById("idxInfo").innerHTML='<b style="color:#60a5fa">'+ix.name+'</b> — '+ix.full+' · '+ix.dom+' · TER '+ix.ter.toFixed(2)+'%<br>'+ix.desc+'<div style="margin-top:8px;color:#34d399;font-size:9px;letter-spacing:.5px">ALLOCATION FINPENSION ÉQUIVALENTE :</div>'+allocHtml;
-  document.getElementById("ti").innerHTML=ct.n+' · Marginal: <span style="color:#60a5fa">'+(R.mg*100).toFixed(0)+'%</span> · Fortune: <span style="color:#60a5fa">'+(R.wt*100).toFixed(2)+'%</span><br>Cotisation: <span style="color:#34d399">CHF '+fm(Math.min(Z.monthly*12,7258))+'</span> · Éco/an: <span style="color:#34d399">CHF '+fm(Math.min(Z.monthly*12,7258)*R.mg)+'</span>';
+  document.getElementById("ti").innerHTML=ct.n+' · Salaire: <span style="color:#60a5fa">CHF '+(Z.salary/1000).toFixed(0)+'k</span> · Taux marginal: <span style="color:#60a5fa">'+(R.mg*100).toFixed(1)+'%</span> · Fortune: <span style="color:#60a5fa">'+(R.wt*100).toFixed(2)+'%</span><br>Cotisation: <span style="color:#34d399">CHF '+fm(Math.min(Z.monthly*12,7258))+'</span> · Éco/an: <span style="color:#34d399">CHF '+fm(Math.min(Z.monthly*12,7258)*R.mg)+'</span>';
   document.getElementById("chartTitle").textContent='Historique 2016–2025 — '+ix.name+' ('+ix.dom.replace(/[^\w]/g,"")+')';
   var diff=R.fpNetOpt-R.ibNet;
   var w=[{n:ix.name+" (IBKR)",v:R.ibNet,c:"#ef6461"},{n:ix.name+" 3a ("+ba+"c)",v:R.fpNetOpt,c:"#3b82f6"}].sort(function(a,b2){return b2.v-a.v});
