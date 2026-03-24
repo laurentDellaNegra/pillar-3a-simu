@@ -119,6 +119,10 @@ export var T = {
     coL: "Cotisation",
     svY: "Éco/an",
     cmI: "Commune",
+    cmLb: "Commune de référence",
+    cmH: "Ville absente ? Ajustez avec le taux manuel ci-dessous.",
+    ovr: "sur",
+    aft: "après",
   },
   de: {
     sub: "FINPENSION 3A · MULTI-ETF SIMULATOR",
@@ -238,6 +242,10 @@ export var T = {
     coL: "Beitrag",
     svY: "Ersp./J",
     cmI: "Gemeinde",
+    cmLb: "Referenzgemeinde",
+    cmH: "Ihre Gemeinde fehlt? Passen Sie den manuellen Steuersatz unten an.",
+    ovr: "über",
+    aft: "nach",
   },
   it: {
     sub: "FINPENSION 3A · SIMULATORE MULTI-ETF",
@@ -357,6 +365,10 @@ export var T = {
     coL: "Contributo",
     svY: "Risp./a",
     cmI: "Comune",
+    cmLb: "Comune di riferimento",
+    cmH: "Comune assente? Regolate l'aliquota manuale qui sotto.",
+    ovr: "su",
+    aft: "dopo",
   },
   en: {
     sub: "FINPENSION 3A · MULTI-ETF SIMULATOR",
@@ -477,5 +489,9 @@ export var T = {
     coL: "Contribution",
     svY: "Saving/yr",
     cmI: "Municipality",
+    cmLb: "Reference commune",
+    cmH: "City not listed? Adjust the manual rate below.",
+    ovr: "over",
+    aft: "after",
   },
 };

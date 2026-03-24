@@ -58,7 +58,7 @@ export function mkS(id, lb, ky, mn, mx, st, un, ff, ac) {
   u();
 }
 
-export function mkP(id, items, ky, cl) {
+export function mkP(id, items, ky, cl, onChange) {
   var el = document.getElementById(id);
   if (!el) return;
   el.innerHTML = "";
@@ -71,8 +71,12 @@ export function mkP(id, items, ky, cl) {
         "background:" + cl + "18;border-color:" + cl + ";color:" + cl + ";font-weight:600";
     b.onclick = function () {
       Z[ky] = k;
-      mkP(id, items, ky, cl);
-      _render();
+      if (onChange) {
+        onChange();
+      } else {
+        mkP(id, items, ky, cl);
+        _render();
+      }
     };
     el.appendChild(b);
   });

@@ -103,6 +103,8 @@ export function render() {
     "</span>";
   document.getElementById("chartTitle").textContent = t("hist") + " — " + ix.name;
   // Stats
+  var nYH = YR.length,
+    perH = YR[0] + "–" + YR[nYH - 1] + " · " + nYH + " " + t("an");
   var diff = R.fpNO - R.ibN;
   var w = [
     { n: ix.name + " (IBKR)", v: R.ibN, c: "#ef6461" },
@@ -113,7 +115,9 @@ export function render() {
   document.getElementById("sts").innerHTML =
     '<div class="st"><div class="sl">' +
     t("win") +
-    '</div><div class="sv2" style="color:' +
+    ' <span style="color:#3a5060;font-weight:400">(' +
+    perH +
+    ')</span></div><div class="sv2" style="color:' +
     w[0].c +
     '">' +
     w[0].n +
@@ -350,7 +354,7 @@ export function render() {
         ";color:" +
         (i3 ? "#34d399" : "#e87070") +
         '">' +
-        s.tg.toUpperCase() +
+        s.tg.toUpperCase() + " · " + nYH + t("an") +
         '</span></div><div style="font-size:10px;font-family:var(--m);color:#6b8299;line-height:2">' +
         s.rw
           .map(function (r) {
@@ -440,26 +444,31 @@ export function render() {
     );
     var pNet3a = fpP - pWd + fpSP,
       pNetIB = ibP * 0.9985;
+    var perP = t("aft") + " " + Z.projYr + " " + t("an") + " (" + ly + ")";
     document.getElementById("projStats").innerHTML =
       '<div class="st"><div class="sl">' +
       ix.name +
-      " 3a " +
-      ly +
+      " 3a" +
       '</div><div class="sv2" style="color:#3b82f6">CHF ' +
       fm(pNet3a) +
       '</div><div class="ss">' +
+      perP +
+      " · " +
       t("wdT") +
       ": CHF " +
       fm(pWd) +
       '</div></div><div class="st"><div class="sl">' +
       ix.name +
-      " IBKR " +
-      ly +
+      " IBKR" +
       '</div><div class="sv2" style="color:#ef6461">CHF ' +
       fm(pNetIB) +
+      '</div><div class="ss">' +
+      perP +
       '</div></div><div class="st"><div class="sl">' +
       t("adv") +
-      '</div><div class="sv2" style="color:#f59e0b">+CHF ' +
+      ' <span style="color:#3a5060;font-weight:400">(' +
+      perP +
+      ')</span></div><div class="sv2" style="color:#f59e0b">+CHF ' +
       fm(pNet3a - pNetIB) +
       "</div></div>";
     document.getElementById("projNote").textContent = t("pN");
@@ -606,13 +615,20 @@ export function render() {
       pctP50.push(finals[Math.floor(nSim * 0.5)]);
       pctP90.push(finals[Math.min(nSim - 1, idx2)]);
     }
+    var perMC = t("aft") + " " + nYr + " " + t("an");
     document.getElementById("mcStats").innerHTML =
       '<div class="st"><div class="sl">P10 (pessimiste)</div><div class="sv2" style="color:#e87070">CHF ' +
       fm(p10) +
+      '</div><div class="ss">' +
+      perMC +
       '</div></div><div class="st"><div class="sl">P50 (médian)</div><div class="sv2" style="color:#f59e0b">CHF ' +
       fm(p50) +
+      '</div><div class="ss">' +
+      perMC +
       '</div></div><div class="st"><div class="sl">P90 (optimiste)</div><div class="sv2" style="color:#34d399">CHF ' +
       fm(p90) +
+      '</div><div class="ss">' +
+      perMC +
       '</div></div><div class="st"><div class="sl">Avg return</div><div class="sv2" style="color:#8b5cf6">' +
       mu.toFixed(1) +
       '%</div><div class="ss">σ = ' +
@@ -692,6 +708,12 @@ export function render() {
       '</div><div class="sv2" style="color:#ef6461">CHF ' +
       fm(ibFree) +
       '</div><div class="ss">' +
+      t("aft") +
+      " " +
+      lockYrs +
+      " " +
+      t("an") +
+      " · " +
       lockYrs +
       "×" +
       fm(annC) +
@@ -702,6 +724,12 @@ export function render() {
       '</div><div class="sv2" style="color:#3b82f6">CHF ' +
       fm(net3) +
       '</div><div class="ss">' +
+      t("aft") +
+      " " +
+      lockYrs +
+      " " +
+      t("an") +
+      " · " +
       t("adv") +
       ': <span style="color:' +
       (net3 > ibFree ? "#34d399" : "#e87070") +

@@ -101,7 +101,7 @@ export var CN = {
     },
   },
   GE: {
-    n: "Genève",
+    n: "Genève (GE)",
     cc: "GE",
     mg: { single: 0.35, married: 0.3, family: 0.27 },
     w: 0.006,
@@ -146,7 +146,7 @@ export var CN = {
     },
   },
   ZH: {
-    n: "Zürich",
+    n: "Zürich (ZH)",
     cc: "ZH",
     mg: { single: 0.3, married: 0.25, family: 0.22 },
     w: 0.0035,
@@ -191,7 +191,7 @@ export var CN = {
     },
   },
   BE: {
-    n: "Bern",
+    n: "Bern (BE)",
     cc: "BE",
     mg: { single: 0.33, married: 0.28, family: 0.25 },
     w: 0.0045,
@@ -236,7 +236,7 @@ export var CN = {
     },
   },
   NE: {
-    n: "Neuchâtel",
+    n: "Neuchâtel (NE)",
     cc: "NE",
     mg: { single: 0.32, married: 0.27, family: 0.24 },
     w: 0.0048,
@@ -281,7 +281,7 @@ export var CN = {
     },
   },
   SZ: {
-    n: "Schwyz",
+    n: "Schwyz (SZ)",
     cc: "SZ",
     mg: { single: 0.22, married: 0.18, family: 0.16 },
     w: 0.002,
@@ -326,7 +326,7 @@ export var CN = {
     },
   },
   ZG: {
-    n: "Zug",
+    n: "Zug (ZG)",
     cc: "ZG",
     mg: { single: 0.22, married: 0.18, family: 0.16 },
     w: 0.0018,
@@ -371,7 +371,7 @@ export var CN = {
     },
   },
   VS: {
-    n: "Valais",
+    n: "Sion (VS)",
     cc: "VS",
     mg: { single: 0.3, married: 0.25, family: 0.22 },
     w: 0.004,

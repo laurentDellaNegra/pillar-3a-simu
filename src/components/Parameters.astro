@@ -24,27 +24,31 @@
         <div class="pills" id="ps"></div>
       </div>
       <div style="margin-bottom:14px">
-        <div style="font-size:11px;color:#7a8fa5;font-family:var(--m);margin-bottom:8px">
-          Canton
+        <div
+          id="lbCanton"
+          style="font-size:11px;color:#7a8fa5;font-family:var(--m);margin-bottom:8px"
+        >
         </div>
         <div class="pills" id="pc"></div>
+        <div id="cmHint" style="font-size:9px;color:#3a5060;font-family:var(--m);margin-top:6px">
+        </div>
+        <div style="margin-top:8px">
+          <div
+            id="lbCustom"
+            style="font-size:11px;color:#7a8fa5;font-family:var(--m);margin-bottom:8px"
+          >
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <input type="number" id="customRateInput" min="0" max="45" step="0.1" value="0" />
+            <span style="font-size:11px;color:#5a7080;font-family:var(--m)">%</span>
+            <span id="customHint" style="font-size:9px;color:#3a5060;font-family:var(--m)"></span>
+          </div>
+        </div>
       </div>
       <div style="margin-bottom:14px">
         <div id="lbDed" style="font-size:11px;color:#7a8fa5;font-family:var(--m);margin-bottom:8px">
         </div>
         <div class="pills" id="pdm"></div>
-      </div>
-      <div style="margin-bottom:14px">
-        <div
-          id="lbCustom"
-          style="font-size:11px;color:#7a8fa5;font-family:var(--m);margin-bottom:8px"
-        >
-        </div>
-        <div style="display:flex;align-items:center;gap:8px">
-          <input type="number" id="customRateInput" min="0" max="45" step="0.1" value="0" />
-          <span style="font-size:11px;color:#5a7080;font-family:var(--m)">%</span>
-          <span id="customHint" style="font-size:9px;color:#3a5060;font-family:var(--m)"></span>
-        </div>
       </div>
       <div
         id="ti"

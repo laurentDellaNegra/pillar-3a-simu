@@ -95,12 +95,14 @@ function buildAll() {
     },
     "#3b82f6",
   );
+  var salMax = Z.status === "married" || Z.status === "family" ? 750000 : 250000;
+  if (Z.salary > salMax) Z.salary = salMax;
   mkS(
     "s2",
     t("sal"),
     "salary",
     50000,
-    250000,
+    salMax,
     5000,
     " CHF",
     function (v) {
@@ -147,12 +149,14 @@ function buildAll() {
 
   // Pills
   var stLb = { single: t("si"), married: t("ma"), family: t("fam") };
-  mkP("ps", stLb, "status", "#3b82f6");
+  mkP("ps", stLb, "status", "#3b82f6", buildAll);
+  document.getElementById("lbCanton").textContent = t("cmLb");
   var cl = {};
   Object.keys(CN).forEach(function (k) {
-    cl[k] = CN[k].n.split(" (")[0];
+    cl[k] = CN[k].n;
   });
   mkP("pc", cl, "canton", "#60a5fa");
+  document.getElementById("cmHint").textContent = t("cmH");
   var dmLb = { reinvest: t("dR"), cash: t("dC"), ignore: t("dI") };
   mkP("pdm", dmLb, "dedMode", "#f59e0b");
 
