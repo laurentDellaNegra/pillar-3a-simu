@@ -81,22 +81,7 @@ function buildAll() {
   document.getElementById("idxSel2").disabled = !Z.cmpMode;
   document.getElementById("idxSel2").style.opacity = Z.cmpMode ? 1 : 0.4;
 
-  // Sliders
-  var moMax = moCap();
-  if (Z.monthly > moMax) Z.monthly = moMax;
-  mkS(
-    "s1",
-    t("mo"),
-    "monthly",
-    0,
-    moMax,
-    5,
-    " CHF",
-    function (v) {
-      return v.toLocaleString("de-CH");
-    },
-    "#3b82f6",
-  );
+  // Sliders — salary first (monthly cap depends on it for self-employed)
   var salMax = Z.status === "married" || Z.status === "family" ? 750000 : 250000;
   if (Z.salary > salMax) Z.salary = salMax;
   mkS(
@@ -111,6 +96,22 @@ function buildAll() {
       return (v / 1000).toFixed(0) + "k";
     },
     "#60a5fa",
+    Z.empType === "selfEmployed" ? buildAll : null,
+  );
+  var moMax = moCap();
+  if (Z.monthly > moMax) Z.monthly = moMax;
+  mkS(
+    "s1",
+    t("mo"),
+    "monthly",
+    0,
+    moMax,
+    5,
+    " CHF",
+    function (v) {
+      return v.toLocaleString("de-CH");
+    },
+    "#3b82f6",
   );
   mkS(
     "s3",

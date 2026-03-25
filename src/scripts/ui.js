@@ -5,7 +5,7 @@ export function setRenderFn(fn) {
   _render = fn;
 }
 
-export function mkS(id, lb, ky, mn, mx, st, un, ff, ac) {
+export function mkS(id, lb, ky, mn, mx, st, un, ff, ac, onChange) {
   var el = document.getElementById(id);
   if (!el) return;
   el.innerHTML =
@@ -53,7 +53,8 @@ export function mkS(id, lb, ky, mn, mx, st, un, ff, ac) {
   }
   inp.oninput = function () {
     u();
-    _render();
+    if (onChange) onChange();
+    else _render();
   };
   u();
 }
