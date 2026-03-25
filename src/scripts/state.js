@@ -1,4 +1,5 @@
 import { T } from "../data/translations.js";
+import { MA } from "../data/etfs.js";
 
 export var Z = {
   monthly: 605,
@@ -24,8 +25,26 @@ export var Z = {
   age: 30,
   showMC: false,
   showOpp: false,
+  empType: "employee",
 };
 
 export function t(k) {
   return T[Z.lang][k] || T.fr[k] || k;
+}
+
+// Annual 3a contribution cap (employee vs self-employed without BVG)
+export function annCap(yr) {
+  var base = yr ? MA[yr] : 7258;
+  if (Z.empType === "selfEmployed") {
+    return Math.min(Z.salary * 0.2, base * 5);
+  }
+  return base;
+}
+
+// Monthly slider max
+export function moCap() {
+  if (Z.empType === "selfEmployed") {
+    return Math.floor(Math.min(Z.salary * 0.2, 36288) / 12);
+  }
+  return 605;
 }

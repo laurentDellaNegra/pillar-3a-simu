@@ -1,6 +1,6 @@
 import { CN } from "../data/communes.js";
-import { IDX, YR, MA } from "../data/etfs.js";
-import { Z } from "./state.js";
+import { IDX, YR } from "../data/etfs.js";
+import { Z, annCap } from "./state.js";
 import { wT, getMg } from "./tax.js";
 
 export function runSim(idxKey) {
@@ -22,7 +22,7 @@ export function runSim(idxKey) {
     cIB = [];
   for (var yi = 0; yi < YR.length; yi++) {
     var yr = YR[yi],
-      c = Math.min(Z.monthly * 12, MA[yr]);
+      c = Math.min(Z.monthly * 12, annCap(yr));
     var bR = ix.r[yr],
       fpR = bR + ix.fpAdj,
       ibR = bR + ix.ibAdj;
@@ -52,7 +52,7 @@ export function runSim(idxKey) {
     cIB.push(Math.round(ib));
   }
   var tc = Z.startBal;
-  for (yi = 0; yi < YR.length; yi++) tc += Math.min(Z.monthly * 12, MA[YR[yi]]);
+  for (yi = 0; yi < YR.length; yi++) tc += Math.min(Z.monthly * 12, annCap(YR[yi]));
   var sc = [];
   for (var n = 1; n <= ms; n++) {
     var pa = fp / n,

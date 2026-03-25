@@ -1,6 +1,6 @@
 import { CN } from "../data/communes.js";
 import { IDX } from "../data/etfs.js";
-import { Z, t } from "./state.js";
+import { Z, t, moCap } from "./state.js";
 import { mkS, mkP, setRenderFn } from "./ui.js";
 import { render } from "./render.js";
 
@@ -82,12 +82,14 @@ function buildAll() {
   document.getElementById("idxSel2").style.opacity = Z.cmpMode ? 1 : 0.4;
 
   // Sliders
+  var moMax = moCap();
+  if (Z.monthly > moMax) Z.monthly = moMax;
   mkS(
     "s1",
     t("mo"),
     "monthly",
     0,
-    605,
+    moMax,
     5,
     " CHF",
     function (v) {
@@ -99,7 +101,7 @@ function buildAll() {
   if (Z.salary > salMax) Z.salary = salMax;
   mkS(
     "s2",
-    t("sal"),
+    Z.empType === "selfEmployed" ? t("salSE") : t("sal"),
     "salary",
     50000,
     salMax,
@@ -148,6 +150,11 @@ function buildAll() {
   mkS("s2p2", t("p2Yr"), "p2Yr", 5, 35, 1, " " + t("an"), null, "#34d399");
 
   // Pills
+  document.getElementById("lbEmpType").textContent = t("empTy");
+  var etLb = { employee: t("emp"), selfEmployed: t("se") };
+  mkP("pet", etLb, "empType", "#10b981", buildAll);
+  document.getElementById("seHint").textContent =
+    Z.empType === "selfEmployed" ? t("seCap") : "";
   var stLb = { single: t("si"), married: t("ma"), family: t("fam") };
   mkP("ps", stLb, "status", "#3b82f6", buildAll);
   document.getElementById("lbCanton").textContent = t("cmLb");

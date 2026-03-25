@@ -1,6 +1,6 @@
 import { CN } from "../data/communes.js";
-import { IDX, YR, MA } from "../data/etfs.js";
-import { Z, t } from "./state.js";
+import { IDX, YR } from "../data/etfs.js";
+import { Z, t, annCap } from "./state.js";
 import { fm, pp } from "./format.js";
 import { wT } from "./tax.js";
 import { svgC } from "./chart.js";
@@ -95,11 +95,11 @@ export function render() {
     "%</span><br>" +
     t("coL") +
     ': <span style="color:#34d399">CHF ' +
-    fm(Math.min(Z.monthly * 12, 7258)) +
+    fm(Math.min(Z.monthly * 12, annCap())) +
     "</span> · " +
     t("svY") +
     ': <span style="color:#34d399">CHF ' +
-    fm(Math.min(Z.monthly * 12, 7258) * R.mg) +
+    fm(Math.min(Z.monthly * 12, annCap()) * R.mg) +
     "</span>";
   document.getElementById("chartTitle").textContent = t("hist") + " — " + ix.name;
   // Stats
@@ -401,7 +401,7 @@ export function render() {
     var fpP = R.fp,
       ibP = R.ib,
       fpSP = R.fpSide,
-      c3 = Math.min(Z.monthly * 12, 7258);
+      c3 = Math.min(Z.monthly * 12, annCap());
     var pL = [],
       pFP = [],
       pIB = [];
@@ -481,7 +481,7 @@ export function render() {
   document.getElementById("retroDesc").textContent = t("retroD");
   if (Z.showRetro) {
     var rYrs = Math.min(Z.retroYrs, 5),
-      rAmt = rYrs * 7258,
+      rAmt = rYrs * annCap(),
       rDed = rAmt * R.mg;
     var rFP = rAmt * (1 + ((Z.projRet || 8) / 100) * 0.5); // rough growth estimate
     var rWd = wT(rFP, Z.canton, Z.status);
@@ -492,7 +492,7 @@ export function render() {
       fm(rAmt) +
       '</div><div class="ss">' +
       rYrs +
-      ' × CHF 7\'258</div></div><div class="st"><div class="sl">' +
+      " × CHF " + fm(annCap()) + '</div></div><div class="st"><div class="sl">' +
       t("rDed") +
       '</div><div class="sv2" style="color:#34d399">CHF ' +
       fm(rDed) +
@@ -574,7 +574,7 @@ export function render() {
     );
     var nSim = 1000,
       nYr = Z.projYr,
-      c3m = Math.min(Z.monthly * 12, 7258);
+      c3m = Math.min(Z.monthly * 12, annCap());
     var finals = [];
     for (var si = 0; si < nSim; si++) {
       var fpM = R.fp,
@@ -665,7 +665,7 @@ export function render() {
   if (Z.showOpp) {
     var retireAge = 65,
       lockYrs = Math.max(0, retireAge - 5 - Z.age);
-    var annC = Math.min(Z.monthly * 12, 7258),
+    var annC = Math.min(Z.monthly * 12, annCap()),
       rHyp = (Z.projRet || 8) / 100;
     // Free capital (IBKR) — same contributions, accessible anytime
     var ibFree = 0;
@@ -757,7 +757,7 @@ export function render() {
       var bR = ix.r[y],
         fR = bR + ix.fpAdj,
         iR = bR + ix.ibAdj,
-        c2 = Math.min(Z.monthly * 12, MA[y]);
+        c2 = Math.min(Z.monthly * 12, annCap(y));
       h +=
         '<tr style="border-bottom:1px solid #141e28"><td style="padding:4px 8px;color:#6b8299">' +
         y +

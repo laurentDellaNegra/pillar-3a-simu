@@ -48,11 +48,17 @@ It models all Swiss-specific tax rules including progressive withdrawal tax, can
 - 4 curves: ETF1 3a, ETF1 IBKR, ETF2 3a, ETF2 IBKR
 - Useful for VOO vs CSPX, VT vs VWCE, etc.
 
+### 🔹 Employee / Self-Employed Toggle
+- **Employee** (with BVG): max CHF 7'258/year (605/month)
+- **Self-employed** (without BVG): max **20% of net income**, capped at CHF 36'288/year (3'024/month)
+- Monthly contribution slider adapts dynamically based on employment status and income
+- All calculations (simulation, projection, retroactive, Monte Carlo, opportunity cost) use the correct cap
+
 ### 🔹 Tax Deduction Modes
 Three modes for handling the 3a tax deduction savings:
 | Mode | Description |
 |------|-------------|
-| **Reinvest (IBKR)** | Tax savings (~33% × 7'258 CHF/yr) reinvested in the same ETF on IBKR, subject to dividend + wealth tax + stamp duty |
+| **Reinvest (IBKR)** | Tax savings (~33% × contribution/yr) reinvested in the same ETF on IBKR, subject to dividend + wealth tax + stamp duty |
 | **Keep as cash** | Tax savings accumulated as cash, subject to wealth tax only |
 | **Don't include** | Tax savings ignored — pure fund-vs-ETF comparison without deduction advantage |
 
@@ -63,10 +69,10 @@ Three modes for handling the 3a tax deduction savings:
 - Side-by-side comparison: 1 account vs optimal N accounts
 
 ### 🔹 Commune-Level Tax Rates
-Real marginal income tax rates for:
+Real marginal income tax rates for **11 communes**:
 - **Lausanne** (VD): cantonal 155% + communal 78.5% (2025–2029)
 - **Nyon** (VD): cantonal 155% + communal 61% (2024–2026)
-- Genève, Zürich, Bern, Neuchâtel, Schwyz, Zug, Valais
+- Genève, Zürich, Bern, Neuchâtel, Schwyz, Zug, Sion (VS), Aarau (AG), Basel (BS)
 
 Each commune has **9 salary brackets × 3 civil statuses = 27 real marginal rates** with linear interpolation between brackets.
 
@@ -209,7 +215,7 @@ Confirmed against Finpension's calculator: single, Lausanne, CHF 250k → **6.95
 |--------|--------------------------|
 | Vaud (Lausanne, Nyon) | **2** |
 | Neuchâtel | **1** |
-| All others (GE, ZH, BE, SZ, ZG, VS) | **5** |
+| All others (GE, ZH, BE, SZ, ZG, VS, AG, BS) | **5** |
 
 ### Wealth Tax
 
@@ -222,6 +228,8 @@ Applied annually on IBKR portfolio and cash side pocket:
 | Genève | 0.60%/yr |
 | Zürich | 0.35%/yr |
 | Zug | 0.18%/yr |
+| Aarau | 0.30%/yr |
+| Basel | 0.55%/yr |
 
 Not applicable inside 3a.
 
@@ -259,10 +267,10 @@ src/
     global.css                 — Dark theme, responsive grid, custom components
   data/
     translations.js            — i18n: FR, DE, IT, EN (~110 keys per language)
-    communes.js                — 9 Swiss communes: marginal rates, withdrawal tax, wealth tax
+    communes.js                — 11 Swiss communes: marginal rates, withdrawal tax, wealth tax
     etfs.js                    — 9 ETFs: returns 2016–2025, TER, dividends, Finpension allocations
   scripts/
-    state.js                   — Global state (Z) + translation helper (t)
+    state.js                   — Global state (Z) + translation helper (t) + contribution cap helpers
     format.js                  — Number/percentage formatting (fm, pp)
     tax.js                     — Withdrawal tax (wT) + marginal rate calculation (getMg)
     chart.js                   — SVG chart generator with tooltips (svgC)
@@ -313,6 +321,7 @@ var Z = {
   lang: "fr",          // fr / de / it / en
   customRate: 0,       // manual marginal rate override (0 = auto)
   cmpMode: false,      // side-by-side comparison enabled
+  empType: "employee", // employee / selfEmployed
   showProj: false,     // projection section open
   projYr: 20,          // projection horizon
   projRet: 8,          // hypothetical return %
@@ -332,7 +341,7 @@ Every input change calls `render()` which recomputes everything and updates all 
 
 ### i18n System
 
-Translation dictionary `T` with 4 language keys, ~110 entries each:
+Translation dictionary `T` with 4 language keys, ~115 entries each:
 ```javascript
 var T = {
   fr: { sub: "FINPENSION 3A · SIMULATEUR MULTI-ETF", ... },
@@ -371,7 +380,8 @@ Language switch calls `buildAll()` which reconstructs all controls (sliders, pil
 | Vaud stagger limit | Confirmed 2 max via multiple sources |
 | Federal withdrawal tax | 1/5 of ordinary IFD rate |
 | Finpension fund list | finpension.ch/en/invest-pillar-3a/index-tools/ |
-| 3a max contributions | 2016–2018: 6'768, 2019–2020: 6'826, 2021–2022: 6'883, 2023–2024: 7'056, 2025–2026: 7'258 |
+| 3a max contributions (employee) | 2016–2018: 6'768, 2019–2020: 6'826, 2021–2022: 6'883, 2023–2024: 7'056, 2025–2026: 7'258 |
+| 3a max contributions (self-employed, no BVG) | 20% of net income, capped at 5× employee limit (CHF 36'288 for 2025) |
 
 ### Finpension Fund Data
 
@@ -458,7 +468,9 @@ All funds are institutional pension fund classes with 0.00% TER. The 0.39% Finpe
 
 8. **Japan CHF returns** — computed from USD returns × FX rate, not from a direct CHF factsheet.
 
-9. **Retroactive 3a (2026)** — the new law details are still being finalized; the simulator uses the currently announced framework (max 5 years, CHF 7'258/year).
+9. **Retroactive 3a (2026)** — the new law details are still being finalized; the simulator uses the currently announced framework (max 5 years, CHF 7'258/year for employees).
+
+10. **Self-employed cap approximation** — the 20% of net income rule uses the salary slider value as a proxy for net earned income. In practice, net income for self-employed is gross revenue minus business expenses, which the simulator does not model.
 
 ---
 
