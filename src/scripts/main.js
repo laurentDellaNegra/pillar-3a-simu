@@ -96,7 +96,16 @@ function buildAll() {
       return (v / 1000).toFixed(0) + "k";
     },
     "#60a5fa",
-    Z.empType === "selfEmployed" ? buildAll : null,
+    Z.empType === "selfEmployed"
+      ? function () {
+          var mm = moCap();
+          if (Z.monthly > mm) Z.monthly = mm;
+          mkS("s1", t("mo"), "monthly", 0, mm, 5, " CHF", function (v) {
+            return v.toLocaleString("de-CH");
+          }, "#3b82f6");
+          render();
+        }
+      : null,
   );
   var moMax = moCap();
   if (Z.monthly > moMax) Z.monthly = moMax;
