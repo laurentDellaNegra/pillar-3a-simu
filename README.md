@@ -69,12 +69,14 @@ Three modes for handling the 3a tax deduction savings:
 - Side-by-side comparison: 1 account vs optimal N accounts
 
 ### 🔹 Commune-Level Tax Rates
-Real marginal income tax rates for **11 communes**:
-- **Lausanne** (VD): cantonal 155% + communal 78.5% (2025–2029)
-- **Nyon** (VD): cantonal 155% + communal 61% (2024–2026)
+Real marginal income tax rates for **13 communes**, verified against the **ESTV Swisstaxcalculator API** (tax year 2025):
+- **Lausanne** (VD): cantonal 155% + communal 78.5%
+- **Nyon** (VD): cantonal 155% + communal 61%
+- **Solothurn** (SO): cantonal 104% + communal 107%
+- **Dornach** (SO): cantonal 104% + communal 88%
 - Genève, Zürich, Bern, Neuchâtel, Schwyz, Zug, Sion (VS), Aarau (AG), Basel (BS)
 
-Each commune has **9 salary brackets × 3 civil statuses = 27 real marginal rates** with linear interpolation between brackets.
+Each commune has **7–9 salary brackets × 3 civil statuses** marginal rates with linear interpolation between brackets. Rates computed using pillar 3a deduction method: tax savings from CHF 7,258 contribution.
 
 ### 🔹 Manual Tax Rate Override
 - Input field to enter your exact marginal rate (from VaudTax, etc.)
@@ -185,19 +187,23 @@ Same S&P 500 index, very different costs for Swiss investors:
 
 ### Income Tax (Marginal Rate)
 
-The simulator uses **per-commune marginal rate brackets** instead of a single fixed rate per canton. Example for Lausanne (single):
+The simulator uses **per-commune marginal rate brackets** instead of a single fixed rate per canton. Rates are computed from the ESTV API using the pillar 3a deduction method: (tax without 3a - tax with CHF 7,258 3a) / 7,258.
+
+Example for Lausanne (single):
 
 | Gross Salary | Marginal Rate |
 |-------------|--------------|
-| 50k CHF | 18.0% |
-| 80k CHF | 28.0% |
-| 100k CHF | 32.0% |
-| 115k CHF | 34.0% |
-| 150k CHF | 38.0% |
-| 200k CHF | 41.0% |
-| 250k CHF | 43.0% |
+| 50k CHF | 19.0% |
+| 80k CHF | 26.0% |
+| 100k CHF | 31.0% |
+| 115k CHF | 33.0% |
+| 150k CHF | 37.0% |
+| 200k CHF | 42.0% |
+| 250k CHF | 45.0% |
 
-Nyon is ~3% lower at every bracket (61% vs 78.5% commune coefficient).
+Nyon is ~2–3% lower at every bracket (61% vs 78.5% commune coefficient).
+
+**Note**: Married rates at low incomes (50k) can be very low (1–8%) in cantons with generous married deductions (GE, BS), reflecting the real tax structure.
 
 ### Withdrawal Tax (Prestations en Capital)
 
@@ -215,7 +221,7 @@ Confirmed against Finpension's calculator: single, Lausanne, CHF 250k → **6.95
 |--------|--------------------------|
 | Vaud (Lausanne, Nyon) | **2** |
 | Neuchâtel | **1** |
-| All others (GE, ZH, BE, SZ, ZG, VS, AG, BS) | **5** |
+| All others (GE, ZH, BE, SZ, ZG, VS, AG, SO, BS) | **5** |
 
 ### Wealth Tax
 
@@ -227,8 +233,14 @@ Applied annually on IBKR portfolio and cash side pocket:
 | Nyon | 0.48%/yr |
 | Genève | 0.60%/yr |
 | Zürich | 0.35%/yr |
+| Bern | 0.45%/yr |
+| Neuchâtel | 0.48%/yr |
+| Schwyz | 0.20%/yr |
 | Zug | 0.18%/yr |
+| Sion | 0.40%/yr |
 | Aarau | 0.30%/yr |
+| Solothurn | 0.30%/yr |
+| Dornach | 0.25%/yr |
 | Basel | 0.55%/yr |
 
 Not applicable inside 3a.
@@ -267,7 +279,7 @@ src/
     global.css                 — Dark theme, responsive grid, custom components
   data/
     translations.js            — i18n: FR, DE, IT, EN (~110 keys per language)
-    communes.js                — 11 Swiss communes: marginal rates, withdrawal tax, wealth tax
+    communes.js                — 13 Swiss communes: marginal rates, withdrawal tax, wealth tax
     etfs.js                    — 9 ETFs: returns 2016–2025, TER, dividends, Finpension allocations
   scripts/
     state.js                   — Global state (Z) + translation helper (t) + contribution cap helpers
@@ -373,8 +385,12 @@ Language switch calls `buildAll()` which reconstructs all controls (sliders, pil
 
 | Data | Source |
 |------|--------|
+| All marginal income tax rates | **ESTV Swisstaxcalculator API** (swisstaxcalculator.estv.admin.ch), tax year 2025 |
+| All capital withdrawal tax rates | **ESTV Swisstaxcalculator API**, capital payout calculator, tax year 2025 |
 | Lausanne commune coefficient | lausanne.ch — 78.5% (2025–2029) |
 | Nyon commune coefficient | nyon.ch — 61% (2024–2026) |
+| Solothurn commune coefficient | 107% (2025), 112% (2026) |
+| Dornach commune coefficient | 88% (2025) |
 | Vaud cantonal coefficient | 155% |
 | Withdrawal tax formula | LI-VD Art. 49 (1/5 of ordinary rate since 2022) |
 | Vaud stagger limit | Confirmed 2 max via multiple sources |
@@ -452,9 +468,9 @@ All funds are institutional pension fund classes with 0.00% TER. The 0.39% Finpe
 
 ## Known Limitations
 
-1. **Marginal rates are approximations** — based on interpolation between salary brackets, not the actual VaudTax/GeTax calculation with all deductions. Use the manual override field for precision.
+1. **Marginal rates are ESTV-verified but exclude church tax** — computed from the ESTV Swisstaxcalculator API (2025) using the pillar 3a deduction method, without church affiliation. Actual rates may be 2–3pp higher for church members. Use the manual override field for precision.
 
-2. **Withdrawal tax brackets are pre-computed** — they approximate the real formula (1/5 ordinary rate × coefficients) but may differ by a few hundred CHF from the official calculator.
+2. **Withdrawal tax rates are ESTV-verified** — computed from the ESTV capital payout calculator (2025). May differ slightly from cantonal calculators due to rounding or parameter assumptions (age, no children).
 
 3. **No commune-specific wealth tax** — uses a single rate per commune, while real wealth tax has its own progressive brackets.
 
@@ -509,7 +525,7 @@ This simulator was built iteratively over a single conversation session:
 
 This is a personal financial simulation tool. Not financial advice. Use at your own risk. All tax calculations are approximations — consult a qualified Swiss tax advisor for your specific situation.
 
-Data sources: MSCI Inc. (factsheets), Finpension AG (fund list), Swiss Federal Tax Administration, Canton de Vaud ACI, Communes of Lausanne and Nyon.
+Data sources: MSCI Inc. (factsheets), Finpension AG (fund list), Swiss Federal Tax Administration (ESTV Swisstaxcalculator API 2025), Canton de Vaud ACI, Communes of Lausanne, Nyon, Solothurn, and Dornach.
 
 ---
 
